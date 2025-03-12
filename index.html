@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPCIONES GGAL - MDC COSITO</title>
+  <!-- Chart.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    body.dark {
+      background-color: #000;
+      color: #fff;
+    }
+    /* Dark Mode Overrides */
+    body.dark header,
+    body.dark footer {
+      background: #000;
+      color: #fff;
+    }
+    body.dark #input-fields {
+      background: #000;
+      color: #fff;
+    }
+    body.dark #input-fields input {
+      background: #000;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    body.dark #input-fields label {
+      color: #fff;
+    }
+    body.dark table {
+      background: #222;
+      color: #fff;
+      border-color: #555;
+    }
+    body.dark th {
+      background-color: #333;
+      color: #fff;
+    }
+    body.dark tr:nth-child(even) {
+      background-color: #1a1a1a;
+    }
+    /* Header & Footer */
+    header, footer {
+      text-align: center;
+      padding: 10px 20px;
+      color: #fff;
+    }
+    header {
+      background: linear-gradient(45deg, #1a237e, #3949ab);
+    }
+    footer {
+      background: linear-gradient(45deg, #1a237e, #3949ab);
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+    /* Botones */
+    .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      margin: 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background-color: #3949ab;
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+    .btn:hover {
+      background-color: #1a237e;
+    }
+    /* Contenedor de Inputs (centrado y compacto) */
+    #input-fields {
+      max-width: 350px;
+      margin: 20px auto;
+      background: white;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    #input-fields .input-row {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    #input-fields .input-row label {
+      width: 150px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    #input-fields .input-row input {
+      flex: 1;
+      padding: 5px;
+      font-size: 14px;
+    }
+    /* Contenedor principal */
+    #main-content {
+      margin: 20px;
+    }
+    .last-update-visible {
+      text-align: center;
+      margin: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+    .controls {
+      text-align: center;
+      margin: 20px;
+    }
+    .controls select {
+      padding: 5px;
+      font-size: 16px;
+      margin: 0 5px;
+    }
+    /* Estrategias de Opciones */
+    #strategies {
+      display: none;
+      max-width: 90%;
+      margin: 20px auto;
+      background: white;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    #strategies h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #strategies table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #strategies th, #strategies td {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #ddd;
+      font-size: 13px;
+    }
+    #strategies th {
+      background-color: #3949ab;
+      color: white;
+    }
+    /* Tables */
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ddd;
+      transition: background-color 1s ease;
+      font-size: 13px;
+    }
+    th {
+      background-color: #3949ab;
+      color: white;
+      cursor: pointer;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    /* Update Info */
+    .update-info {
+      text-align: center;
+      margin: 20px;
+      font-size: 14px;
+    }
+    .cell-updated {
+      background-color: yellow;
+      transition: background-color 1s ease;
+    }
+    /* Registro de Operaciones */
+    #trade-records {
+      width: 90%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    #trade-records h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #trade-records .trade-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    #trade-records .trade-form label {
+      font-weight: bold;
+      font-size: 13px;
+    }
+    #trade-records .trade-form input,
+    #trade-records .trade-form select {
+      padding: 5px;
+      font-size: 13px;
+    }
+    #trade-records #trade-list {
+      margin-bottom: 20px;
+    }
+  </style>
+  <script>
+    /**************************
+     * Código para Opciones GGAL
+     **************************/
+    var previousCallData = {};
+    var previousPutData = {};
+    var globalWeightedCallVol = null;
+    var globalWeightedPutVol = null;
+    var currentSortCall = { columnIndex: 1, ascending: true };
+    var currentSortPut = { columnIndex: 1, ascending: true };
+
+    // Variables para primas default (actualizadas en fetchData)
+    var defaultPremiumCall = {};
+    var defaultPremiumPut = {};
+
+    function applySort(tableId, columnIndex, ascending) {
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.rows);
+      if (rows.length === 0) return;
+      const isNumeric = !isNaN(parseFloat(rows[0].cells[columnIndex].textContent.replace(",", ".")));
+      rows.sort((a, b) => {
+        const cellA = a.cells[columnIndex].textContent.replace(",", ".");
+        const cellB = b.cells[columnIndex].textContent.replace(",", ".");
+        if (isNumeric) {
+          return ascending ? parseFloat(cellA) - parseFloat(cellB) : parseFloat(cellB) - parseFloat(cellA);
+        } else {
+          return ascending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+        }
+      });
+      rows.forEach(row => tbody.appendChild(row));
+    }
+
+    function sortTable(tableId, columnIndex) {
+      if (tableId === "call-table") {
+        if (currentSortCall.columnIndex === columnIndex) {
+          currentSortCall.ascending = !currentSortCall.ascending;
+        } else {
+          currentSortCall.columnIndex = columnIndex;
+          currentSortCall.ascending = true;
+        }
+        applySort(tableId, currentSortCall.columnIndex, currentSortCall.ascending);
+      } else if (tableId === "put-table") {
+        if (currentSortPut.columnIndex === columnIndex) {
+          currentSortPut.ascending = !currentSortPut.ascending;
+        } else {
+          currentSortPut.columnIndex = columnIndex;
+          currentSortPut.ascending = true;
+        }
+        applySort(tableId, currentSortPut.columnIndex, currentSortPut.ascending);
+      }
+    }
+
+    function normPDF(x) {
+      return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+    }
+
+    function erf(x) {
+      var sign = (x >= 0 ? 1 : -1);
+      x = Math.abs(x);
+      var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741,
+          a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      var t = 1.0 / (1.0 + p * x);
+      var y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+      return sign * y;
+    }
+
+    function normCDF(x) {
+      return 0.5 * (1 + erf(x / Math.sqrt(2)));
+    }
+
+    function blackScholesPrice(S, K, T, r, sigma, optionType) {
+      var d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+      var d2 = d1 - sigma * Math.sqrt(T);
+      if (optionType === "call") {
+        return S * normCDF(d1) - K * Math.exp(-r * T) * normCDF(d2);
+      } else {
+        return K * Math.exp(-r * T) * normCDF(-d2) - S * normCDF(-d1);
+      }
+    }
+
+    function calculateImpliedVol(optionPrice, S, K, T, r, optionType) {
+      var tol = 1e-6;
+      var maxIter = 100;
+      var low = 0.001;
+      var high = 5;
+      var mid, price;
+      for (var i = 0; i < maxIter; i++) {
+        mid = (low + high) / 2;
+        price = blackScholesPrice(S, K, T, r, mid, optionType);
+        if (Math.abs(price - optionPrice) < tol) {
+          return mid;
+        }
+        if (price > optionPrice) {
+          high = mid;
+        } else {
+          low = mid;
+        }
+      }
+      return mid;
+    }
+
+    function blackScholesGreeks(S, K, T, r, sigma, optionType) {
+      var d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+      var d2 = d1 - sigma * Math.sqrt(T);
+      var pdf_d1 = normPDF(d1);
+      var delta, theta;
+      if (optionType === 'call') {
+        delta = normCDF(d1);
+        theta = (-(S * pdf_d1 * sigma) / (2 * Math.sqrt(T)) - r * K * Math.exp(-r * T) * normCDF(d2)) / 365;
+      } else {
+        delta = normCDF(d1) - 1;
+        theta = (-(S * pdf_d1 * sigma) / (2 * Math.sqrt(T)) + r * K * Math.exp(-r * T) * normCDF(-d2)) / 365;
+      }
+      var gamma = pdf_d1 / (S * sigma * Math.sqrt(T));
+      var vega = S * pdf_d1 * Math.sqrt(T) / 100;
+      return { delta: delta, gamma: gamma, vega: vega, theta: theta };
+    }
+
+    const strikeMapping = {
+      49783: '4978,30',
+      51783: '5178,30',
+      53783: '5378,30',
+      55783: '5578,30',
+      57783: '5778,30',
+      59783: '5978,30',
+      61783: '6178,30',
+      63783: '6378,30',
+      65783: '6578,30',
+      67783: '6778,30',
+      69783: '6978,30',
+      71783: '7178,30',
+      73783: '7378,30',
+      75783: '7578,30',
+      77783: '7778,30',
+      79783: '7978,30',
+      82783: '8278,30',
+      85783: '8578,30',
+      88783: '8878,30',
+      91783: '9178,30',
+      94783: '9478,30',
+      97783: '9778,30',
+      10078: '10078,00',
+      10578: '10578,00',
+      11078: '11078,00',
+      11600: '11600,00',
+      12100: '12100,00',
+      12600: '12600,00'
+    };
+
+    function extractStrike(symbol) {
+      const match = symbol.match(/\d+/);
+      return match ? match[0] : '-';
+    }
+
+    function matchStrike(rawStrike) {
+      if (strikeMapping[rawStrike]) {
+        return parseFloat(strikeMapping[rawStrike].replace(',', '.'));
+      }
+      return (rawStrike !== '-') ? parseFloat(rawStrike) : null;
+    }
+
+    function addCellWithHighlight(row, value, shouldHighlight, extraStyles) {
+      const cell = document.createElement("td");
+      cell.textContent = (value !== null && value !== undefined) ? value : '-';
+      if (shouldHighlight) {
+        cell.classList.add("cell-updated");
+        setTimeout(() => {
+          cell.classList.remove("cell-updated");
+        }, 1000);
+      }
+      if (extraStyles) {
+        for (const prop in extraStyles) {
+          cell.style[prop] = extraStyles[prop];
+        }
+      }
+      row.appendChild(cell);
+    }
+
+    function removeDuplicates(data) {
+      const seen = new Set();
+      return data.filter(item => {
+        const strike = extractStrike(item.symbol);
+        if (seen.has(strike)) {
+          return false;
+        }
+        seen.add(strike);
+        return true;
+      });
+    }
+
+    function calculateWeightedVolatility(data, S, T, r, optionType) {
+      let sumWeightedIV = 0, totalWeight = 0;
+      data.forEach(item => {
+        let weight = parseFloat(item.q_op);
+        let rawStrike = extractStrike(item.symbol);
+        let K = matchStrike(rawStrike);
+        if (!isNaN(weight) && weight > 0 && !isNaN(parseFloat(item.c)) && parseFloat(item.c) > 0 && K) {
+          let iv = calculateImpliedVol(parseFloat(item.c), S, K, T, r, optionType);
+          sumWeightedIV += iv * weight;
+          totalWeight += weight;
+        }
+      });
+      return (totalWeight > 0) ? sumWeightedIV / totalWeight : null;
+    }
+
+    function updateVtoDate() {
+      const filtro = document.getElementById("vencimiento-filter").value;
+      const vtoInput = document.getElementById("vto-opciones");
+      if (filtro === "JU") {
+        vtoInput.value = "2025-06-19";
+      } else if (filtro === "AG") {
+        vtoInput.value = "2025-08-14";
+      } else if (filtro === "A") {
+        vtoInput.value = "2025-04-16";
+      }
+    }
+
+    function populateTable(tableId, data) {
+      const tbody = document.querySelector(`#${tableId} tbody`);
+      tbody.innerHTML = "";
+      var S = parseFloat(document.getElementById("precio-accion").value);
+      var fechaHoyVal = document.getElementById("fecha-hoy").value;
+      var vtoVal = document.getElementById("vto-opciones").value;
+      var rVal = parseFloat(document.getElementById("tasa-libre-riesgo").value);
+      var volHistVal = parseFloat(document.getElementById("volatilidad-historica").value);
+      var plazoDiasInput = document.getElementById("plazo-dias");
+      var sigmaHist = (!isNaN(volHistVal)) ? volHistVal / 100 : null;
+      let T = null;
+      if (fechaHoyVal && vtoVal) {
+        let dateHoy = new Date(fechaHoyVal);
+        let dateVto = new Date(vtoVal);
+        let diffDays = Math.round((dateVto - dateHoy) / (1000 * 60 * 60 * 24));
+        if (plazoDiasInput) {
+          plazoDiasInput.value = diffDays;
+        }
+        if (diffDays > 0) {
+          T = diffDays / 365;
+        }
+      }
+      let r = (!isNaN(rVal)) ? rVal / 100 : null;
+      let optionType = (tableId === "call-table") ? "call" : "put";
+      let prevData = (tableId === "call-table") ? previousCallData : previousPutData;
+      const fragment = document.createDocumentFragment();
+      data.forEach(item => {
+        const tr = document.createElement("tr");
+        let rawStrike = extractStrike(item.symbol);
+        let K = matchStrike(rawStrike);
+        let strikeValue = (K !== null) ? K.toFixed(2) : (rawStrike !== '-' ? rawStrike : "-");
+        let symbolValue = item.symbol;
+        let teorValue = "-";
+        let volForTeor = (optionType === "call") ? globalWeightedCallVol : globalWeightedPutVol;
+        if (!isNaN(S) && S && T && r !== null && K && volForTeor !== null) {
+          let teorPrice = blackScholesPrice(S, K, T, r, volForTeor, optionType);
+          teorValue = teorPrice.toFixed(2);
+        }
+        let ultimoValue = item.c;
+        let diffValue = "-";
+        if (teorValue !== "-" && ultimoValue !== "-" && !isNaN(parseFloat(teorValue))
+            && parseFloat(teorValue) !== 0 && !isNaN(parseFloat(ultimoValue))) {
+          let diff = ((parseFloat(ultimoValue) - parseFloat(teorValue)) / parseFloat(teorValue)) * 100;
+          diffValue = diff.toFixed(2) + "%";
+        }
+        let pctCambioValue = item.pct_change;
+        let newPctCambio = "-";
+        if (pctCambioValue !== "-" && !isNaN(parseFloat(pctCambioValue))) {
+          newPctCambio = parseFloat(pctCambioValue).toFixed(2) + "%";
+        }
+        let bidValue = item.px_bid;
+        let askValue = item.px_ask;
+        let qtyBidValue = item.q_bid;
+        let qtyAskValue = item.q_ask;
+        let operacionesValue = item.q_op;
+        let ivValue = "-";
+        let deltaValue = "-";
+        let gammaValue = "-";
+        let vegaValue = "-";
+        let thetaValue = "-";
+        if (!isNaN(S) && S && T && r !== null && K) {
+          let individualIV = calculateImpliedVol(parseFloat(item.c), S, K, T, r, optionType);
+          ivValue = (individualIV * 100).toFixed(2) + "%";
+          if (sigmaHist !== null) {
+            let greeks = blackScholesGreeks(S, K, T, r, sigmaHist, optionType);
+            deltaValue = greeks.delta.toFixed(4);
+            gammaValue = greeks.gamma.toFixed(4);
+            vegaValue = greeks.vega.toFixed(4);
+            thetaValue = greeks.theta.toFixed(4);
+          }
+        }
+        let newRow = [
+          String(symbolValue),
+          String(strikeValue),
+          String(teorValue),
+          String(ultimoValue),
+          String(diffValue),
+          String(qtyBidValue),
+          String(bidValue),
+          String(askValue),
+          String(qtyAskValue),
+          String(operacionesValue),
+          String(newPctCambio),
+          String(ivValue),
+          String(deltaValue),
+          String(gammaValue),
+          String(vegaValue),
+          String(thetaValue)
+        ];
+        for (let i = 0; i < newRow.length; i++) {
+          let extraStyle = {};
+          if (i === 4 && newRow[i] !== "-") {
+            let diffNum = parseFloat(newRow[i]);
+            if (!isNaN(diffNum)) {
+              extraStyle.color = (diffNum < 0 ? "red" : (diffNum > 0 ? "green" : "black"));
+            }
+          }
+          if (i === 10 && newRow[i] !== "-") {
+            let pct = parseFloat(newRow[i]);
+            if (!isNaN(pct)) {
+              extraStyle.color = (pct < 0 ? "red" : (pct > 0 ? "green" : "black"));
+            }
+          }
+          if (i === 11) {
+            extraStyle.borderLeft = "2px solid red";
+          }
+          let shouldHighlight = false;
+          if (prevData[symbolValue]) {
+            if (prevData[symbolValue][i] !== newRow[i]) {
+              shouldHighlight = true;
+            }
+          }
+          addCellWithHighlight(tr, newRow[i], shouldHighlight, Object.keys(extraStyle).length > 0 ? extraStyle : null);
+        }
+        prevData[symbolValue] = newRow;
+        fragment.appendChild(tr);
+      });
+      tbody.appendChild(fragment);
+    }
+
+    function updateCountdown() {
+      if (nextUpdateTime > 0) {
+        nextUpdateTime--;
+        document.getElementById("next-update").textContent =
+          "Próxima actualización en: " + nextUpdateTime + " segundos";
+      }
+    }
+
+    async function fetchData() {
+      try {
+        const response = await fetch("https://data912.com/live/arg_options");
+        const data = await response.json();
+        const calls = data.filter(option => option.symbol.startsWith("GFGC"));
+        const puts = data.filter(option => option.symbol.startsWith("GFGV"));
+        const filtro = document.getElementById("vencimiento-filter").value;
+        const filteredCalls = removeDuplicates(calls.filter(call => call.symbol.endsWith(filtro)));
+        const filteredPuts = removeDuplicates(puts.filter(put => put.symbol.endsWith(filtro)));
+        defaultPremiumCall = {};
+        filteredCalls.forEach(record => {
+          let rawStrike = extractStrike(record.symbol);
+          let K = matchStrike(rawStrike);
+          if (K) { defaultPremiumCall[K] = parseFloat(record.c); }
+        });
+        defaultPremiumPut = {};
+        filteredPuts.forEach(record => {
+          let rawStrike = extractStrike(record.symbol);
+          let K = matchStrike(rawStrike);
+          if (K) { defaultPremiumPut[K] = parseFloat(record.c); }
+        });
+        populateTable("call-table", filteredCalls);
+        populateTable("put-table", filteredPuts);
+        applySort("call-table", currentSortCall.columnIndex, currentSortCall.ascending);
+        applySort("put-table", currentSortPut.columnIndex, currentSortPut.ascending);
+        var S = parseFloat(document.getElementById("precio-accion").value);
+        var fechaHoyVal = document.getElementById("fecha-hoy").value;
+        var vtoVal = document.getElementById("vto-opciones").value;
+        var rVal = parseFloat(document.getElementById("tasa-libre-riesgo").value);
+        let T = null;
+        if (fechaHoyVal && vtoVal) {
+          let dateHoy = new Date(fechaHoyVal);
+          let dateVto = new Date(vtoVal);
+          let diffDays = Math.round((dateVto - dateHoy) / (1000 * 60 * 60 * 24));
+          if (diffDays > 0) {
+            T = diffDays / 365;
+          }
+        }
+        let r = (!isNaN(rVal)) ? rVal / 100 : null;
+        if (!isNaN(S) && S && T && r !== null) {
+          let weightedIVCall = calculateWeightedVolatility(filteredCalls, S, T, r, "call");
+          let weightedIVPut = calculateWeightedVolatility(filteredPuts, S, T, r, "put");
+          document.getElementById("vol-calls").value = (weightedIVCall !== null) ? (weightedIVCall * 100).toFixed(2) + "%" : "-";
+          document.getElementById("vol-puts").value = (weightedIVPut !== null) ? (weightedIVPut * 100).toFixed(2) + "%" : "-";
+          globalWeightedCallVol = weightedIVCall;
+          globalWeightedPutVol = weightedIVPut;
+        }
+        const now = new Date();
+        document.getElementById("last-update").textContent = "Última actualización: " + now.toLocaleTimeString();
+        document.getElementById("last-update-visible").textContent = "Última actualización: " + now.toLocaleTimeString();
+        nextUpdateTime = updateInterval / 1000;
+        updateStrategyExamples();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    const updateInterval = 10000; // 10 segundos
+    let nextUpdateTime = updateInterval / 1000;
+
+    function fetchGGALStock() {
+      fetch("https://data912.com/live/arg_stocks")
+        .then(response => response.json())
+        .then(data => {
+          const ggalStock = data.find(item => item.symbol === "GGAL");
+          if (ggalStock && ggalStock.c) {
+            document.getElementById("precio-accion").value = ggalStock.c;
+            updateStrategyExamples();
+          }
+        })
+        .catch(error => console.error("Error fetching GGAL stock:", error));
+    }
+
+    /**************************
+     * Registro de Operaciones *
+     **************************/
+    var tradeRecords = [];
+    var profitChart;
+
+    function updateTradeStrikeOptions() {
+      const strikeSelect = document.getElementById("trade-strike");
+      let optionsHTML = "";
+      const strikes = Object.keys(strikeMapping).map(key => matchStrike(key)).filter(val => val !== null);
+      let uniqueStrikes = [...new Set(strikes)];
+      uniqueStrikes.sort((a, b) => a - b);
+      uniqueStrikes.forEach(strike => {
+        optionsHTML += `<option value="${strike}">${strike.toFixed(2)}</option>`;
+      });
+      strikeSelect.innerHTML = optionsHTML;
+    }
+
+    function updateTradePremiumDefault() {
+      const optionType = document.getElementById("trade-option-type").value;
+      const strikeSelect = document.getElementById("trade-strike");
+      const selectedStrike = strikeSelect.value;
+      const premiumInput = document.getElementById("trade-premium");
+      if (optionType === "call") {
+        let value = defaultPremiumCall[selectedStrike];
+        premiumInput.value = (value !== undefined) ? value : "";
+      } else {
+        let value = defaultPremiumPut[selectedStrike];
+        premiumInput.value = (value !== undefined) ? value : "";
+      }
+    }
+
+    function addTrade() {
+      const optionTypeEl = document.getElementById("trade-option-type");
+      const positionEl = document.getElementById("trade-position");
+      const strikeEl = document.getElementById("trade-strike");
+      const premiumEl = document.getElementById("trade-premium");
+      const quantityEl = document.getElementById("trade-quantity");
+
+      const trade = {
+        optionType: optionTypeEl.value,
+        position: positionEl.value,
+        strike: parseFloat(strikeEl.value),
+        premium: parseFloat(premiumEl.value),
+        quantity: parseInt(quantityEl.value) || 1
+      };
+
+      if (isNaN(trade.strike) || isNaN(trade.premium)) {
+        alert("Por favor, ingresa valores numéricos válidos para Strike y Prima.");
+        return;
+      }
+
+      tradeRecords.push(trade);
+      renderTrades();
+      updateProfitChart();
+      premiumEl.value = "";
+    }
+
+    function deleteTrade(index) {
+      tradeRecords.splice(index, 1);
+      renderTrades();
+      updateProfitChart();
+    }
+
+    function renderTrades() {
+      const listEl = document.getElementById("trade-list");
+      if (tradeRecords.length === 0) {
+        listEl.innerHTML = "<p>No hay operaciones ingresadas.</p>";
+        return;
+      }
+      let html = "<table style='width:100%; border-collapse: collapse;'><thead><tr style='background:#3949ab; color: white;'><th>Tipo</th><th>Posición</th><th>Strike</th><th>Prima</th><th>Cantidad</th><th>Acción</th></tr></thead><tbody>";
+      tradeRecords.forEach((trade, index) => {
+        html += `<tr style="border-bottom: 1px solid #ddd;">
+                  <td>${trade.optionType.toUpperCase()}</td>
+                  <td>${(trade.position === "long") ? "Compra" : "Venta"}</td>
+                  <td>${trade.strike.toFixed(2)}</td>
+                  <td>${trade.premium.toFixed(2)}</td>
+                  <td>${trade.quantity}</td>
+                  <td><button class="btn" onclick="deleteTrade(${index})">Eliminar</button></td>
+                </tr>`;
+      });
+      html += "</tbody></table>";
+      listEl.innerHTML = html;
+    }
+
+    function computeTradeProfit(trade, underlying) {
+      if (trade.optionType === "call") {
+        if (trade.position === "long")
+          return trade.quantity * (Math.max(underlying - trade.strike, 0) - trade.premium);
+        else
+          return trade.quantity * (trade.premium - Math.max(underlying - trade.strike, 0));
+      } else {
+        if (trade.position === "long")
+          return trade.quantity * (Math.max(trade.strike - underlying, 0) - trade.premium);
+        else
+          return trade.quantity * (trade.premium - Math.max(trade.strike - underlying, 0));
+      }
+    }
+
+    function calculateTotalProfit(underlying) {
+      let total = 0;
+      tradeRecords.forEach(trade => {
+        total += computeTradeProfit(trade, underlying);
+      });
+      return total;
+    }
+
+    function generateProfitChartData() {
+      if (tradeRecords.length === 0)
+        return { x: [], y: [] };
+      const strikes = tradeRecords.map(tr => tr.strike);
+      let minStrike = Math.min(...strikes);
+      let maxStrike = Math.max(...strikes);
+      let margin = (maxStrike - minStrike) * 0.5;
+      if (margin === 0) margin = minStrike * 0.5;
+      let xMin = Math.max(0, minStrike - margin);
+      let xMax = maxStrike + margin;
+      let step = (xMax - xMin) / 100;
+      let xValues = [];
+      let yValues = [];
+      for (let x = xMin; x <= xMax; x += step) {
+        xValues.push(x.toFixed(2));
+        yValues.push(calculateTotalProfit(x));
+      }
+      return { x: xValues, y: yValues };
+    }
+
+    function updateProfitChart() {
+      const data = generateProfitChartData();
+      if (!profitChart) {
+        const ctx = document.getElementById('profitChart').getContext('2d');
+        profitChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.x,
+            datasets: [{
+              label: 'Ganancia / Pérdida',
+              data: data.y,
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              fill: true,
+              tension: 0.1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: { display: true, title: { display: true, text: "Precio Subyacente" } },
+              y: { display: true, title: { display: true, text: "Profit" } }
+            }
+          }
+        });
+      } else {
+        profitChart.data.labels = data.x;
+        profitChart.data.datasets[0].data = data.y;
+        profitChart.update();
+      }
+    }
+
+    /**************************
+     * Estrategias Posibles
+     **************************/
+    function updateStrategyExamples() {
+      var S = parseFloat(document.getElementById("precio-accion").value);
+      if (isNaN(S) || S <= 0) return;
+      var margin = S * 0.05;
+      var sentiment = document.getElementById("sentimiento").value;
+      document.getElementById("example-covered-call").textContent = (sentiment === "alcista") ?
+        "Mantener acción y vender call a strike " + (S + margin).toFixed(2) : "No recomendado";
+      document.getElementById("example-protective-put").textContent = (sentiment === "bajista") ?
+        "Comprar put a strike " + (S - margin).toFixed(2) : "No recomendado";
+      document.getElementById("example-bull-call-spread").textContent = (sentiment === "alcista") ?
+        "Comprar call a strike " + (S - margin).toFixed(2) + " y vender call a strike " + (S + margin).toFixed(2) : "No recomendado";
+      document.getElementById("example-bear-put-spread").textContent = (sentiment === "bajista") ?
+        "Comprar put a strike " + (S + margin).toFixed(2) + " y vender put a strike " + (S - margin).toFixed(2) : "No recomendado";
+      document.getElementById("example-long-straddle").textContent = "Comprar call y put a strike " + S.toFixed(2);
+      document.getElementById("example-long-strangle").textContent = "Comprar call a strike " + (S + margin).toFixed(2) + " y put a strike " + (S - margin).toFixed(2);
+      document.getElementById("example-iron-condor").textContent = "Vender call a strike " + (S + margin).toFixed(2) +
+        ", comprar call a strike " + (S + 2 * margin).toFixed(2) + ", vender put a strike " + (S - margin).toFixed(2) +
+        ", comprar put a strike " + (S - 2 * margin).toFixed(2);
+      document.getElementById("example-butterfly-spread").textContent = "Comprar call a strike " + (S - margin).toFixed(2) +
+        ", vender 2 calls a strike " + S.toFixed(2) + ", comprar call a strike " + (S + margin).toFixed(2);
+      document.getElementById("example-calendar-spread").textContent = "Vender opción corta y comprar opción larga a strike " + S.toFixed(2);
+    }
+
+    // Función para gestionar la adición/borrado de estrategias en el Registro de Operaciones
+    function toggleStrategyTrade(strategyId, isChecked) {
+      var S = parseFloat(document.getElementById("precio-accion").value);
+      var hoy = document.getElementById("fecha-hoy").value;
+      var vto = document.getElementById("vto-opciones").value;
+      var rVal = parseFloat(document.getElementById("tasa-libre-riesgo").value);
+      var volHist = parseFloat(document.getElementById("volatilidad-historica").value) / 100;
+      if (isNaN(S) || !S || !hoy || !vto || isNaN(rVal)) {
+        alert("Completar datos necesarios (Precio, Fecha, Vto, etc.)");
+        return;
+      }
+      var r = rVal / 100;
+      var dateHoy = new Date(hoy);
+      var dateVto = new Date(vto);
+      var diffDays = Math.round((dateVto - dateHoy) / (1000 * 60 * 60 * 24));
+      if (diffDays <= 0) {
+        alert("El vencimiento debe ser en el futuro");
+        return;
+      }
+      var T = diffDays / 365;
+      var sigma = (globalWeightedCallVol != null) ? globalWeightedCallVol : volHist;
+      var margin = S * 0.05;
+      var sentiment = document.getElementById("sentimiento").value;
+      var newTrades = [];
+      switch (strategyId) {
+        case "coveredCall":
+          if (sentiment !== "alcista") {
+            alert("Covered Call no es recomendado en sentimiento bajista.");
+            uncheckStrategyCheckbox("coveredCall");
+            return;
+          }
+          var strike = S + margin;
+          var premium = blackScholesPrice(S, strike, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "short", strike: strike, premium: premium, quantity: 1, strategy: "coveredCall" });
+          break;
+        case "protectivePut":
+          if (sentiment !== "bajista") {
+            alert("Protective Put no es recomendado en sentimiento alcista.");
+            uncheckStrategyCheckbox("protectivePut");
+            return;
+          }
+          var strike = S - margin;
+          var premium = blackScholesPrice(S, strike, T, r, sigma, "put");
+          newTrades.push({ optionType: "put", position: "long", strike: strike, premium: premium, quantity: 1, strategy: "protectivePut" });
+          break;
+        case "bullCallSpread":
+          if (sentiment !== "alcista") {
+            alert("Bull Call Spread no es recomendado en sentimiento bajista.");
+            uncheckStrategyCheckbox("bullCallSpread");
+            return;
+          }
+          var strikeLong = S - margin;
+          var strikeShort = S + margin;
+          var premiumLong = blackScholesPrice(S, strikeLong, T, r, sigma, "call");
+          var premiumShort = blackScholesPrice(S, strikeShort, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLong, premium: premiumLong, quantity: 1, strategy: "bullCallSpread_long" });
+          newTrades.push({ optionType: "call", position: "short", strike: strikeShort, premium: premiumShort, quantity: 1, strategy: "bullCallSpread_short" });
+          break;
+        case "bearPutSpread":
+          if (sentiment !== "bajista") {
+            alert("Bear Put Spread no es recomendado en sentimiento alcista.");
+            uncheckStrategyCheckbox("bearPutSpread");
+            return;
+          }
+          var strikeLong = S + margin;
+          var strikeShort = S - margin;
+          var premiumLong = blackScholesPrice(S, strikeLong, T, r, sigma, "put");
+          var premiumShort = blackScholesPrice(S, strikeShort, T, r, sigma, "put");
+          newTrades.push({ optionType: "put", position: "long", strike: strikeLong, premium: premiumLong, quantity: 1, strategy: "bearPutSpread_long" });
+          newTrades.push({ optionType: "put", position: "short", strike: strikeShort, premium: premiumShort, quantity: 1, strategy: "bearPutSpread_short" });
+          break;
+        case "longStraddle":
+          var premiumCall = blackScholesPrice(S, S, T, r, sigma, "call");
+          var premiumPut = blackScholesPrice(S, S, T, r, sigma, "put");
+          newTrades.push({ optionType: "call", position: "long", strike: S, premium: premiumCall, quantity: 1, strategy: "longStraddle_call" });
+          newTrades.push({ optionType: "put", position: "long", strike: S, premium: premiumPut, quantity: 1, strategy: "longStraddle_put" });
+          break;
+        case "longStrangle":
+          var strikeCall = S + margin;
+          var strikePut = S - margin;
+          var premiumCall = blackScholesPrice(S, strikeCall, T, r, sigma, "call");
+          var premiumPut = blackScholesPrice(S, strikePut, T, r, sigma, "put");
+          newTrades.push({ optionType: "call", position: "long", strike: strikeCall, premium: premiumCall, quantity: 1, strategy: "longStrangle_call" });
+          newTrades.push({ optionType: "put", position: "long", strike: strikePut, premium: premiumPut, quantity: 1, strategy: "longStrangle_put" });
+          break;
+        case "ironCondor":
+          var strikeShortCall = S + margin;
+          var strikeLongCall = S + 2 * margin;
+          var strikeShortPut = S - margin;
+          var strikeLongPut = S - 2 * margin;
+          var premiumShortCall = blackScholesPrice(S, strikeShortCall, T, r, sigma, "call");
+          var premiumLongCall = blackScholesPrice(S, strikeLongCall, T, r, sigma, "call");
+          var premiumShortPut = blackScholesPrice(S, strikeShortPut, T, r, sigma, "put");
+          var premiumLongPut = blackScholesPrice(S, strikeLongPut, T, r, sigma, "put");
+          newTrades.push({ optionType: "call", position: "short", strike: strikeShortCall, premium: premiumShortCall, quantity: 1, strategy: "ironCondor_shortCall" });
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLongCall, premium: premiumLongCall, quantity: 1, strategy: "ironCondor_longCall" });
+          newTrades.push({ optionType: "put", position: "short", strike: strikeShortPut, premium: premiumShortPut, quantity: 1, strategy: "ironCondor_shortPut" });
+          newTrades.push({ optionType: "put", position: "long", strike: strikeLongPut, premium: premiumLongPut, quantity: 1, strategy: "ironCondor_longPut" });
+          break;
+        case "butterflySpread":
+          var strikeLong = S - margin;
+          var strikeShort = S;
+          var strikeLong2 = S + margin;
+          var premiumLong = blackScholesPrice(S, strikeLong, T, r, sigma, "call");
+          var premiumShort = blackScholesPrice(S, strikeShort, T, r, sigma, "call");
+          var premiumLong2 = blackScholesPrice(S, strikeLong2, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLong, premium: premiumLong, quantity: 1, strategy: "butterflySpread_longCall" });
+          newTrades.push({ optionType: "call", position: "short", strike: strikeShort, premium: premiumShort, quantity: 2, strategy: "butterflySpread_shortCall" });
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLong2, premium: premiumLong2, quantity: 1, strategy: "butterflySpread_longCall2" });
+          break;
+        case "calendarSpread":
+          var premium = blackScholesPrice(S, S, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "short", strike: S, premium: premium, quantity: 1, strategy: "calendarSpread" });
+          break;
+        default:
+          break;
+      }
+      if (isChecked) {
+        newTrades.forEach(function(trade) {
+          tradeRecords.push(trade);
+        });
+      } else {
+        // Eliminar todas las operaciones relacionadas con la estrategia indicada
+        tradeRecords = tradeRecords.filter(function(trade) {
+          return trade.strategy.indexOf(strategyId) !== 0;
+        });
+      }
+      renderTrades();
+      updateProfitChart();
+    }
+
+    function uncheckStrategyCheckbox(strategyId) {
+      var row = document.getElementById("strategy-" + strategyId);
+      if (row) {
+        var checkbox = row.querySelector("input[type='checkbox']");
+        if (checkbox) {
+          checkbox.checked = false;
+        }
+      }
+    }
+
+    function toggleStrategies() {
+      var el = document.getElementById("strategies");
+      el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
+      updateStrategyExamples();
+    }
+
+    /**************************
+     * Inicialización y eventos
+     **************************/
+    window.addEventListener("load", function() {
+      const hoyInput = document.getElementById("fecha-hoy");
+      if (hoyInput) {
+        hoyInput.value = new Date().toISOString().split("T")[0];
+      }
+      updateVtoDate();
+      fetchGGALStock();
+      fetchData();
+      updateTradeStrikeOptions();
+      updateStrategyExamples();
+    });
+    setInterval(fetchData, updateInterval);
+    setInterval(updateCountdown, 1000);
+  </script>
+</head>
+<body>
+  <header>
+    <h1>OPCIONES GGAL - MDC COSITO</h1>
+    <button class="btn" onclick="document.body.classList.toggle('dark')">Modo Oscuro</button>
+  </header>
+
+  <!-- Contenedor de Inputs y Volatilidad -->
+  <section id="input-fields">
+    <div class="input-row">
+      <label for="precio-accion">Precio Acción:</label>
+      <input type="number" id="precio-accion" step="0.01" placeholder="Precio desde GGAL" onchange="fetchData(); updateStrategyExamples();" />
+    </div>
+    <div class="input-row">
+      <label for="fecha-hoy">Fecha Hoy:</label>
+      <input type="date" id="fecha-hoy" onchange="fetchData(); updateStrategyExamples();" />
+    </div>
+    <div class="input-row">
+      <label for="vto-opciones">Vto opciones:</label>
+      <input type="date" id="vto-opciones" value="2025-04-16" onchange="fetchData();" />
+    </div>
+    <div class="input-row">
+      <label for="volatilidad-historica">Vol. histórica (%):</label>
+      <input type="number" id="volatilidad-historica" value="40" step="0.01" onchange="fetchData();" />
+    </div>
+    <div class="input-row">
+      <label for="tasa-libre-riesgo">Tasa libre (%):</label>
+      <input type="number" id="tasa-libre-riesgo" value="25" step="0.01" onchange="fetchData();" />
+    </div>
+    <div class="input-row">
+      <label for="plazo-dias">Plazo (días):</label>
+      <input type="number" id="plazo-dias" readonly />
+    </div>
+    <div class="input-row">
+      <label for="vol-calls">Vol. Calls:</label>
+      <input type="text" id="vol-calls" readonly />
+    </div>
+    <div class="input-row">
+      <label for="vol-puts">Vol. Puts:</label>
+      <input type="text" id="vol-puts" readonly />
+    </div>
+  </section>
+
+  <!-- Contenido principal -->
+  <div id="main-content">
+    <div class="last-update-visible" id="last-update-visible">Última actualización: -</div>
+    <div class="controls">
+      <label for="vencimiento-filter">Filtrar por Vencimiento:</label>
+      <select id="vencimiento-filter" onchange="updateVtoDate(); fetchData();">
+        <option value="A">Abril</option>
+        <option value="JU">Junio</option>
+        <option value="AG">Agosto</option>
+      </select>
+      <label for="sentimiento">Sentimiento:</label>
+      <select id="sentimiento" onchange="updateStrategyExamples()">
+        <option value="alcista">Alcista</option>
+        <option value="bajista">Bajista</option>
+      </select>
+      <button class="btn" onclick="toggleStrategies()">Mostrar Estrategias</button>
+    </div>
+
+    <!-- Sección de Estrategias -->
+    <div id="strategies">
+      <h2>Estrategias Posibles</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Estrategia</th>
+            <th>Descripción</th>
+            <th>Acción Recomendada</th>
+            <th>Ejemplo</th>
+            <th>Probar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="strategy-coveredCall">
+            <td>Covered Call</td>
+            <td>Poseer la acción y vender una call a strike cercano</td>
+            <td>Mantener acción, vender call</td>
+            <td id="example-covered-call"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('coveredCall', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-protectivePut">
+            <td>Protective Put</td>
+            <td>Poseer la acción y comprar una put como seguro</td>
+            <td>Comprar put</td>
+            <td id="example-protective-put"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('protectivePut', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-bullCallSpread">
+            <td>Bull Call Spread</td>
+            <td>Compra de call a strike inferior y venta de call a strike superior</td>
+            <td>Long call y short call</td>
+            <td id="example-bull-call-spread"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('bullCallSpread', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-bearPutSpread">
+            <td>Bear Put Spread</td>
+            <td>Compra de put a strike superior y venta de put a strike inferior</td>
+            <td>Long put y short put</td>
+            <td id="example-bear-put-spread"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('bearPutSpread', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-longStraddle">
+            <td>Long Straddle</td>
+            <td>Compra simultánea de call y put en el mismo strike</td>
+            <td>Comprar call y put</td>
+            <td id="example-long-straddle"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('longStraddle', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-longStrangle">
+            <td>Long Strangle</td>
+            <td>Compra de call y put en strikes diferentes</td>
+            <td>Comprar call y put</td>
+            <td id="example-long-strangle"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('longStrangle', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-ironCondor">
+            <td>Iron Condor</td>
+            <td>Venta de un call spread y un put spread para rangos limitados</td>
+            <td>Venta de spreads</td>
+            <td id="example-iron-condor"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('ironCondor', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-butterflySpread">
+            <td>Butterfly Spread</td>
+            <td>Combinación de posiciones para aprovechar baja volatilidad</td>
+            <td>Posición neutral</td>
+            <td id="example-butterfly-spread"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('butterflySpread', this.checked)" /></td>
+          </tr>
+          <tr id="strategy-calendarSpread">
+            <td>Calendar Spread</td>
+            <td>Explotar diferencia en vencimientos</td>
+            <td>Vender opción a corto plazo, comprar a largo plazo</td>
+            <td id="example-calendar-spread"></td>
+            <td><input type="checkbox" onchange="toggleStrategyTrade('calendarSpread', this.checked)" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Opciones Tables -->
+    <main>
+      <h2>Opciones CALL (GFGC)</h2>
+      <table id="call-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('call-table', 0)" title="Símbolo de la opción">Symbol</th>
+            <th onclick="sortTable('call-table', 1)" title="Precio de ejercicio">Strike</th>
+            <th onclick="sortTable('call-table', 2)" title="Teórico (Black-Scholes)">Teórico</th>
+            <th onclick="sortTable('call-table', 3)" title="Último Precio">Último</th>
+            <th onclick="sortTable('call-table', 4)" title="Diferencia % (vs Teórico)">Diferencia %</th>
+            <th onclick="sortTable('call-table', 5)" title="Qty Bid">Qty Bid</th>
+            <th onclick="sortTable('call-table', 6)" title="Precio Bid">Bid</th>
+            <th onclick="sortTable('call-table', 7)" title="Precio Ask">Ask</th>
+            <th onclick="sortTable('call-table', 8)" title="Qty Ask">Qty Ask</th>
+            <th onclick="sortTable('call-table', 9)" title="Operaciones">Operaciones</th>
+            <th onclick="sortTable('call-table', 10)" title="% Cambio">% Cambio</th>
+            <th onclick="sortTable('call-table', 11)" title="Volatilidad Implícita" style="border-left: 2px solid red;">Volatilidad Implícita</th>
+            <th onclick="sortTable('call-table', 12)" title="Delta">Delta</th>
+            <th onclick="sortTable('call-table', 13)" title="Gamma">Gamma</th>
+            <th onclick="sortTable('call-table', 14)" title="Vega">Vega</th>
+            <th onclick="sortTable('call-table', 15)" title="Theta">Theta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Datos generados dinámicamente -->
+        </tbody>
+      </table>
+
+      <h2>Opciones PUT (GFGV)</h2>
+      <table id="put-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('put-table', 0)" title="Símbolo de la opción">Symbol</th>
+            <th onclick="sortTable('put-table', 1)" title="Precio de ejercicio">Strike</th>
+            <th onclick="sortTable('put-table', 2)" title="Teórico (Black-Scholes)">Teórico</th>
+            <th onclick="sortTable('put-table', 3)" title="Último Precio">Último</th>
+            <th onclick="sortTable('put-table', 4)" title="Diferencia % (vs Teórico)">Diferencia %</th>
+            <th onclick="sortTable('put-table', 5)" title="Qty Bid">Qty Bid</th>
+            <th onclick="sortTable('put-table', 6)" title="Precio Bid">Bid</th>
+            <th onclick="sortTable('put-table', 7)" title="Precio Ask">Ask</th>
+            <th onclick="sortTable('put-table', 8)" title="Qty Ask">Qty Ask</th>
+            <th onclick="sortTable('put-table', 9)" title="Operaciones">Operaciones</th>
+            <th onclick="sortTable('put-table', 10)" title="% Cambio">% Cambio</th>
+            <th onclick="sortTable('put-table', 11)" title="Volatilidad Implícita" style="border-left: 2px solid red;">Volatilidad Implícita</th>
+            <th onclick="sortTable('put-table', 12)" title="Delta">Delta</th>
+            <th onclick="sortTable('put-table', 13)" title="Gamma">Gamma</th>
+            <th onclick="sortTable('put-table', 14)" title="Vega">Vega</th>
+            <th onclick="sortTable('put-table', 15)" title="Theta">Theta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Datos generados dinámicamente -->
+        </tbody>
+      </table>
+    </main>
+
+    <!-- Registro de Operaciones y Gráfico de Payoff -->
+    <section id="trade-records">
+      <h2>Registro de Operaciones</h2>
+      <div class="trade-form">
+        <label for="trade-option-type">Tipo de Opción:</label>
+        <select id="trade-option-type" onchange="updateTradePremiumDefault()">
+          <option value="call">Call</option>
+          <option value="put">Put</option>
+        </select>
+        <label for="trade-position">Posición:</label>
+        <select id="trade-position">
+          <option value="long">Compra (Long)</option>
+          <option value="short">Venta (Short)</option>
+        </select>
+        <label for="trade-strike">Strike:</label>
+        <select id="trade-strike" onchange="updateTradePremiumDefault()">
+          <!-- Opciones se poblarán automáticamente -->
+        </select>
+        <label for="trade-premium">Prima:</label>
+        <input type="number" id="trade-premium" step="0.01" />
+        <label for="trade-quantity">Cantidad:</label>
+        <input type="number" id="trade-quantity" value="1" step="1" />
+        <button class="btn" onclick="addTrade()">Agregar Operación</button>
+      </div>
+      <div id="trade-list">
+        <!-- Lista de operaciones ingresadas -->
+      </div>
+      <canvas id="profitChart" style="max-width: 100%; height: 300px;"></canvas>
+    </section>
+
+    <!-- Update Info -->
+    <div class="update-info">
+      <p id="last-update">Última actualización: -</p>
+      <p id="next-update">Próxima actualización en: 10 segundos</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>Creado para perder plata de forma sofisticada</p>
+  </footer>
+</body>
+</html>
