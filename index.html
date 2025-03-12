@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OPCIONES GGAL - MDC COSITO</title>
+  <title>OPCIONES - MDC COSITO</title>
   <!-- Chart.js from CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <style>
@@ -19,35 +19,15 @@
       background-color: #000;
       color: #fff;
     }
-    /* Dark Mode Overrides */
     body.dark header,
     body.dark footer {
       background: #000;
       color: #fff;
     }
-    body.dark #input-fields {
-      background: #000;
-      color: #fff;
-    }
-    body.dark #input-fields input {
+    body.dark input, body.dark select {
       background: #000;
       color: #fff;
       border: 1px solid #555;
-    }
-    body.dark #input-fields label {
-      color: #fff;
-    }
-    body.dark table {
-      background: #222;
-      color: #fff;
-      border-color: #555;
-    }
-    body.dark th {
-      background-color: #333;
-      color: #fff;
-    }
-    body.dark tr:nth-child(even) {
-      background-color: #1a1a1a;
     }
     /* Header & Footer */
     header, footer {
@@ -76,11 +56,9 @@
       color: #fff;
       transition: background-color 0.3s;
     }
-    .btn:hover {
-      background-color: #1a237e;
-    }
-    /* Contenedor de Inputs (centrado y compacto) */
-    #input-fields {
+    .btn:hover { background-color: #1a237e; }
+    /* Inputs Container */
+    .input-fields {
       max-width: 350px;
       margin: 20px auto;
       background: white;
@@ -88,23 +66,24 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       border-radius: 8px;
     }
-    #input-fields .input-row {
-      margin-bottom: 10px;
+    .input-fields .input-row {
       display: flex;
       align-items: center;
+      margin-bottom: 10px;
     }
-    #input-fields .input-row label {
+    .input-fields .input-row label {
       width: 150px;
       font-weight: bold;
       font-size: 14px;
     }
-    #input-fields .input-row input {
+    .input-fields .input-row input,
+    .input-fields .input-row select {
       flex: 1;
       padding: 5px;
       font-size: 14px;
     }
-    /* Contenedor principal */
-    #main-content {
+    /* Main content */
+    #main-content, #main-content-ypfd {
       margin: 20px;
     }
     .last-update-visible {
@@ -123,8 +102,8 @@
       font-size: 16px;
       margin: 0 5px;
     }
-    /* Estrategias de Opciones */
-    #strategies {
+    /* Strategies */
+    .strategies {
       display: none;
       max-width: 90%;
       margin: 20px auto;
@@ -133,21 +112,21 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       border-radius: 8px;
     }
-    #strategies h2 {
+    .strategies h2 {
       text-align: center;
       margin-bottom: 10px;
     }
-    #strategies table {
+    .strategies table {
       width: 100%;
       border-collapse: collapse;
     }
-    #strategies th, #strategies td {
+    .strategies th, .strategies td {
       padding: 8px;
       text-align: center;
       border: 1px solid #ddd;
       font-size: 13px;
     }
-    #strategies th {
+    .strategies th {
       background-color: #3949ab;
       color: white;
     }
@@ -157,7 +136,7 @@
       margin: 20px auto;
       border-collapse: collapse;
       background: white;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       border-radius: 8px;
       overflow: hidden;
     }
@@ -179,7 +158,6 @@
     tr:hover {
       background-color: #f1f1f1;
     }
-    /* Update Info */
     .update-info {
       text-align: center;
       margin: 20px;
@@ -189,54 +167,49 @@
       background-color: yellow;
       transition: background-color 1s ease;
     }
-    /* Registro de Operaciones */
-    #trade-records {
-      width: 90%;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      border-radius: 8px;
-    }
-    #trade-records h2 {
+    /* Tabs */
+    .tabs {
       text-align: center;
-      margin-bottom: 10px;
+      margin: 10px;
     }
-    #trade-records .trade-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    #trade-records .trade-form label {
-      font-weight: bold;
-      font-size: 13px;
-    }
-    #trade-records .trade-form input,
-    #trade-records .trade-form select {
-      padding: 5px;
-      font-size: 13px;
-    }
-    #trade-records #trade-list {
-      margin-bottom: 20px;
+    .tabs button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
   <script>
-    /**************************
-     * Código para Opciones GGAL
-     **************************/
-    var previousCallData = {};
-    var previousPutData = {};
-    var globalWeightedCallVol = null;
-    var globalWeightedPutVol = null;
-    var currentSortCall = { columnIndex: 1, ascending: true };
-    var currentSortPut = { columnIndex: 1, ascending: true };
+    /*
+      Configuración para los instrumentos.
+      Cada instrumento tiene un sufijo que se añade a los IDs de los elementos (por ejemplo, GGAL no tiene sufijo y YPFD usa "-ypfd").
+      Para agregar otro instrumento, basta con añadir una nueva entrada aquí.
+    */
+    const instrumentsConfig = {
+      GGAL: {
+        name: "GGAL",
+        stockSymbol: "GGAL",
+        callPrefix: "GFGC",
+        putPrefix: "GFGV",
+        suffix: "",                // Para GGAL, no se añade sufijo
+        containerId: "ggal-content"
+      },
+      YPFD: {
+        name: "YPFD",
+        stockSymbol: "YPFD",
+        callPrefix: "YPFC",
+        putPrefix: "YPFV",
+        suffix: "-ypfd",           // Para YPFD, se añade "-ypfd" a los IDs
+        containerId: "ypfd-content"
+      }
+    };
 
-    // Variables para primas default (actualizadas en fetchData)
-    var defaultPremiumCall = {};
-    var defaultPremiumPut = {};
+    // Helper para obtener elementos con el sufijo del instrumento.
+    function getElement(instrument, baseId) {
+      return document.getElementById(baseId + instrument.suffix);
+    }
 
+    /* Funciones Comunes (sin cambios en la lógica matemática) */
     function applySort(tableId, columnIndex, ascending) {
       const table = document.getElementById(tableId);
       const tbody = table.querySelector("tbody");
@@ -246,33 +219,11 @@
       rows.sort((a, b) => {
         const cellA = a.cells[columnIndex].textContent.replace(",", ".");
         const cellB = b.cells[columnIndex].textContent.replace(",", ".");
-        if (isNumeric) {
-          return ascending ? parseFloat(cellA) - parseFloat(cellB) : parseFloat(cellB) - parseFloat(cellA);
-        } else {
-          return ascending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
-        }
+        return isNumeric
+          ? ascending ? parseFloat(cellA) - parseFloat(cellB) : parseFloat(cellB) - parseFloat(cellA)
+          : ascending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
       });
       rows.forEach(row => tbody.appendChild(row));
-    }
-
-    function sortTable(tableId, columnIndex) {
-      if (tableId === "call-table") {
-        if (currentSortCall.columnIndex === columnIndex) {
-          currentSortCall.ascending = !currentSortCall.ascending;
-        } else {
-          currentSortCall.columnIndex = columnIndex;
-          currentSortCall.ascending = true;
-        }
-        applySort(tableId, currentSortCall.columnIndex, currentSortCall.ascending);
-      } else if (tableId === "put-table") {
-        if (currentSortPut.columnIndex === columnIndex) {
-          currentSortPut.ascending = !currentSortPut.ascending;
-        } else {
-          currentSortPut.columnIndex = columnIndex;
-          currentSortPut.ascending = true;
-        }
-        applySort(tableId, currentSortPut.columnIndex, currentSortPut.ascending);
-      }
     }
 
     function normPDF(x) {
@@ -296,30 +247,19 @@
     function blackScholesPrice(S, K, T, r, sigma, optionType) {
       var d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
       var d2 = d1 - sigma * Math.sqrt(T);
-      if (optionType === "call") {
-        return S * normCDF(d1) - K * Math.exp(-r * T) * normCDF(d2);
-      } else {
-        return K * Math.exp(-r * T) * normCDF(-d2) - S * normCDF(-d1);
-      }
+      return optionType === "call"
+        ? S * normCDF(d1) - K * Math.exp(-r * T) * normCDF(d2)
+        : K * Math.exp(-r * T) * normCDF(-d2) - S * normCDF(-d1);
     }
 
     function calculateImpliedVol(optionPrice, S, K, T, r, optionType) {
-      var tol = 1e-6;
-      var maxIter = 100;
-      var low = 0.001;
-      var high = 5;
-      var mid, price;
+      var tol = 1e-6, maxIter = 100, low = 0.001, high = 5, mid, price;
       for (var i = 0; i < maxIter; i++) {
         mid = (low + high) / 2;
         price = blackScholesPrice(S, K, T, r, mid, optionType);
-        if (Math.abs(price - optionPrice) < tol) {
-          return mid;
-        }
-        if (price > optionPrice) {
-          high = mid;
-        } else {
-          low = mid;
-        }
+        if (Math.abs(price - optionPrice) < tol) return mid;
+        if (price > optionPrice) high = mid;
+        else low = mid;
       }
       return mid;
     }
@@ -389,9 +329,7 @@
       cell.textContent = (value !== null && value !== undefined) ? value : '-';
       if (shouldHighlight) {
         cell.classList.add("cell-updated");
-        setTimeout(() => {
-          cell.classList.remove("cell-updated");
-        }, 1000);
+        setTimeout(() => { cell.classList.remove("cell-updated"); }, 1000);
       }
       if (extraStyles) {
         for (const prop in extraStyles) {
@@ -405,9 +343,7 @@
       const seen = new Set();
       return data.filter(item => {
         const strike = extractStrike(item.symbol);
-        if (seen.has(strike)) {
-          return false;
-        }
+        if (seen.has(strike)) return false;
         seen.add(strike);
         return true;
       });
@@ -428,9 +364,17 @@
       return (totalWeight > 0) ? sumWeightedIV / totalWeight : null;
     }
 
-    function updateVtoDate() {
-      const filtro = document.getElementById("vencimiento-filter").value;
-      const vtoInput = document.getElementById("vto-opciones");
+    // Variables globales para cada instrumento
+    const defaultPremiumCall = {};
+    const defaultPremiumPut = {};
+    const currentSortCall = {};
+    const currentSortPut = {};
+    const updateInterval = 10000; // 10 segundos
+
+    // Funciones específicas por instrumento (usando la ayuda getElement)
+    function updateVtoDateForInstrument(instrument) {
+      const filtro = getElement(instrument, "vencimiento-filter").value;
+      const vtoInput = getElement(instrument, "vto-opciones");
       if (filtro === "JU") {
         vtoInput.value = "2025-06-19";
       } else if (filtro === "AG") {
@@ -440,78 +384,76 @@
       }
     }
 
-    function populateTable(tableId, data) {
+    function populateTableForInstrument(instrument, tableBaseId, data) {
+      const tableId = tableBaseId + instrument.suffix;
       const tbody = document.querySelector(`#${tableId} tbody`);
       tbody.innerHTML = "";
-      var S = parseFloat(document.getElementById("precio-accion").value);
-      var fechaHoyVal = document.getElementById("fecha-hoy").value;
-      var vtoVal = document.getElementById("vto-opciones").value;
-      var rVal = parseFloat(document.getElementById("tasa-libre-riesgo").value);
-      var volHistVal = parseFloat(document.getElementById("volatilidad-historica").value);
-      var plazoDiasInput = document.getElementById("plazo-dias");
-      var sigmaHist = (!isNaN(volHistVal)) ? volHistVal / 100 : null;
+      const S = parseFloat(getElement(instrument, "precio-accion").value);
+      const fechaHoyVal = getElement(instrument, "fecha-hoy").value;
+      const vtoVal = getElement(instrument, "vto-opciones").value;
+      const rVal = parseFloat(getElement(instrument, "tasa-libre-riesgo").value);
+      const volHistVal = parseFloat(getElement(instrument, "volatilidad-historica").value);
+      const plazoDiasInput = getElement(instrument, "plazo-dias");
+      const sigmaHist = (!isNaN(volHistVal)) ? volHistVal / 100 : null;
       let T = null;
       if (fechaHoyVal && vtoVal) {
         let dateHoy = new Date(fechaHoyVal);
         let dateVto = new Date(vtoVal);
         let diffDays = Math.round((dateVto - dateHoy) / (1000 * 60 * 60 * 24));
-        if (plazoDiasInput) {
-          plazoDiasInput.value = diffDays;
-        }
-        if (diffDays > 0) {
-          T = diffDays / 365;
-        }
+        if (plazoDiasInput) plazoDiasInput.value = diffDays;
+        if (diffDays > 0) T = diffDays / 365;
       }
-      let r = (!isNaN(rVal)) ? rVal / 100 : null;
-      let optionType = (tableId === "call-table") ? "call" : "put";
-      let prevData = (tableId === "call-table") ? previousCallData : previousPutData;
+      const r = (!isNaN(rVal)) ? rVal / 100 : null;
+      const optionType = (tableBaseId === "call-table") ? "call" : "put";
+      // Para mantener datos previos y resaltar cambios
+      const prevData = (tableBaseId === "call-table") ? instrument.previousCallData : instrument.previousPutData;
       const fragment = document.createDocumentFragment();
       data.forEach(item => {
         const tr = document.createElement("tr");
-        let rawStrike = extractStrike(item.symbol);
-        let K = matchStrike(rawStrike);
-        let strikeValue = (K !== null) ? K.toFixed(2) : (rawStrike !== '-' ? rawStrike : "-");
-        let symbolValue = item.symbol;
+        const rawStrike = extractStrike(item.symbol);
+        const K = matchStrike(rawStrike);
+        const strikeValue = (K !== null) ? K.toFixed(2) : (rawStrike !== '-' ? rawStrike : "-");
+        const symbolValue = item.symbol;
         let teorValue = "-";
-        let volForTeor = (optionType === "call") ? globalWeightedCallVol : globalWeightedPutVol;
+        const volForTeor = (optionType === "call") ? instrument.globalWeightedCallVol : instrument.globalWeightedPutVol;
         if (!isNaN(S) && S && T && r !== null && K && volForTeor !== null) {
-          let teorPrice = blackScholesPrice(S, K, T, r, volForTeor, optionType);
+          const teorPrice = blackScholesPrice(S, K, T, r, volForTeor, optionType);
           teorValue = teorPrice.toFixed(2);
         }
-        let ultimoValue = item.c;
+        const ultimoValue = item.c;
         let diffValue = "-";
         if (teorValue !== "-" && ultimoValue !== "-" && !isNaN(parseFloat(teorValue))
             && parseFloat(teorValue) !== 0 && !isNaN(parseFloat(ultimoValue))) {
-          let diff = ((parseFloat(ultimoValue) - parseFloat(teorValue)) / parseFloat(teorValue)) * 100;
+          const diff = ((parseFloat(ultimoValue) - parseFloat(teorValue)) / parseFloat(teorValue)) * 100;
           diffValue = diff.toFixed(2) + "%";
         }
-        let pctCambioValue = item.pct_change;
+        const pctCambioValue = item.pct_change;
         let newPctCambio = "-";
         if (pctCambioValue !== "-" && !isNaN(parseFloat(pctCambioValue))) {
           newPctCambio = parseFloat(pctCambioValue).toFixed(2) + "%";
         }
-        let bidValue = item.px_bid;
-        let askValue = item.px_ask;
-        let qtyBidValue = item.q_bid;
-        let qtyAskValue = item.q_ask;
-        let operacionesValue = item.q_op;
+        const bidValue = item.px_bid;
+        const askValue = item.px_ask;
+        const qtyBidValue = item.q_bid;
+        const qtyAskValue = item.q_ask;
+        const operacionesValue = item.q_op;
         let ivValue = "-";
         let deltaValue = "-";
         let gammaValue = "-";
         let vegaValue = "-";
         let thetaValue = "-";
         if (!isNaN(S) && S && T && r !== null && K) {
-          let individualIV = calculateImpliedVol(parseFloat(item.c), S, K, T, r, optionType);
+          const individualIV = calculateImpliedVol(parseFloat(item.c), S, K, T, r, optionType);
           ivValue = (individualIV * 100).toFixed(2) + "%";
           if (sigmaHist !== null) {
-            let greeks = blackScholesGreeks(S, K, T, r, sigmaHist, optionType);
+            const greeks = blackScholesGreeks(S, K, T, r, sigmaHist, optionType);
             deltaValue = greeks.delta.toFixed(4);
             gammaValue = greeks.gamma.toFixed(4);
             vegaValue = greeks.vega.toFixed(4);
             thetaValue = greeks.theta.toFixed(4);
           }
         }
-        let newRow = [
+        const newRow = [
           String(symbolValue),
           String(strikeValue),
           String(teorValue),
@@ -529,126 +471,118 @@
           String(vegaValue),
           String(thetaValue)
         ];
-        for (let i = 0; i < newRow.length; i++) {
+        newRow.forEach((cellValue, i) => {
           let extraStyle = {};
-          if (i === 4 && newRow[i] !== "-") {
-            let diffNum = parseFloat(newRow[i]);
+          if (i === 4 && cellValue !== "-") {
+            const diffNum = parseFloat(cellValue);
             if (!isNaN(diffNum)) {
-              extraStyle.color = (diffNum < 0 ? "red" : (diffNum > 0 ? "green" : "black"));
+              extraStyle.color = diffNum < 0 ? "red" : diffNum > 0 ? "green" : "black";
             }
           }
-          if (i === 10 && newRow[i] !== "-") {
-            let pct = parseFloat(newRow[i]);
+          if (i === 10 && cellValue !== "-") {
+            const pct = parseFloat(cellValue);
             if (!isNaN(pct)) {
-              extraStyle.color = (pct < 0 ? "red" : (pct > 0 ? "green" : "black"));
+              extraStyle.color = pct < 0 ? "red" : pct > 0 ? "green" : "black";
             }
           }
           if (i === 11) {
             extraStyle.borderLeft = "2px solid red";
           }
           let shouldHighlight = false;
-          if (prevData[symbolValue]) {
-            if (prevData[symbolValue][i] !== newRow[i]) {
-              shouldHighlight = true;
-            }
+          if (prevData && prevData[symbolValue] && prevData[symbolValue][i] !== newRow[i]) {
+            shouldHighlight = true;
           }
           addCellWithHighlight(tr, newRow[i], shouldHighlight, Object.keys(extraStyle).length > 0 ? extraStyle : null);
+        });
+        if (tableBaseId === "call-table") {
+          instrument.previousCallData[symbolValue] = newRow;
+        } else {
+          instrument.previousPutData[symbolValue] = newRow;
         }
-        prevData[symbolValue] = newRow;
         fragment.appendChild(tr);
       });
       tbody.appendChild(fragment);
     }
 
-    function updateCountdown() {
-      if (nextUpdateTime > 0) {
-        nextUpdateTime--;
-        document.getElementById("next-update").textContent =
-          "Próxima actualización en: " + nextUpdateTime + " segundos";
+    function updateCountdownForInstrument(instrument) {
+      if (instrument.nextUpdateTime > 0) {
+        instrument.nextUpdateTime--;
+        getElement(instrument, "next-update").textContent =
+          "Próxima actualización en: " + instrument.nextUpdateTime + " segundos";
       }
     }
 
-    async function fetchData() {
+    async function fetchDataForInstrument(instrument) {
       try {
         const response = await fetch("https://data912.com/live/arg_options");
         const data = await response.json();
-        const calls = data.filter(option => option.symbol.startsWith("GFGC"));
-        const puts = data.filter(option => option.symbol.startsWith("GFGV"));
-        const filtro = document.getElementById("vencimiento-filter").value;
+        const calls = data.filter(option => option.symbol.startsWith(instrument.callPrefix));
+        const puts = data.filter(option => option.symbol.startsWith(instrument.putPrefix));
+        const filtro = getElement(instrument, "vencimiento-filter").value;
         const filteredCalls = removeDuplicates(calls.filter(call => call.symbol.endsWith(filtro)));
         const filteredPuts = removeDuplicates(puts.filter(put => put.symbol.endsWith(filtro)));
-        defaultPremiumCall = {};
+        defaultPremiumCall[instrument.name] = {};
         filteredCalls.forEach(record => {
           let rawStrike = extractStrike(record.symbol);
-          let K = matchStrike(rawStrike);
-          if (K) { defaultPremiumCall[K] = parseFloat(record.c); }
+          const K = matchStrike(rawStrike);
+          if (K) { defaultPremiumCall[instrument.name][K] = parseFloat(record.c); }
         });
-        defaultPremiumPut = {};
+        defaultPremiumPut[instrument.name] = {};
         filteredPuts.forEach(record => {
           let rawStrike = extractStrike(record.symbol);
-          let K = matchStrike(rawStrike);
-          if (K) { defaultPremiumPut[K] = parseFloat(record.c); }
+          const K = matchStrike(rawStrike);
+          if (K) { defaultPremiumPut[instrument.name][K] = parseFloat(record.c); }
         });
-        populateTable("call-table", filteredCalls);
-        populateTable("put-table", filteredPuts);
-        applySort("call-table", currentSortCall.columnIndex, currentSortCall.ascending);
-        applySort("put-table", currentSortPut.columnIndex, currentSortPut.ascending);
-        var S = parseFloat(document.getElementById("precio-accion").value);
-        var fechaHoyVal = document.getElementById("fecha-hoy").value;
-        var vtoVal = document.getElementById("vto-opciones").value;
-        var rVal = parseFloat(document.getElementById("tasa-libre-riesgo").value);
+        populateTableForInstrument(instrument, "call-table", filteredCalls);
+        populateTableForInstrument(instrument, "put-table", filteredPuts);
+        applySort("call-table" + instrument.suffix, currentSortCall[instrument.name].columnIndex, currentSortCall[instrument.name].ascending);
+        applySort("put-table" + instrument.suffix, currentSortPut[instrument.name].columnIndex, currentSortPut[instrument.name].ascending);
+        const S = parseFloat(getElement(instrument, "precio-accion").value);
+        const fechaHoyVal = getElement(instrument, "fecha-hoy").value;
+        const vtoVal = getElement(instrument, "vto-opciones").value;
+        const rVal = parseFloat(getElement(instrument, "tasa-libre-riesgo").value);
         let T = null;
         if (fechaHoyVal && vtoVal) {
           let dateHoy = new Date(fechaHoyVal);
           let dateVto = new Date(vtoVal);
           let diffDays = Math.round((dateVto - dateHoy) / (1000 * 60 * 60 * 24));
-          if (diffDays > 0) {
-            T = diffDays / 365;
-          }
+          if (diffDays > 0) T = diffDays / 365;
         }
-        let r = (!isNaN(rVal)) ? rVal / 100 : null;
+        const r = (!isNaN(rVal)) ? rVal / 100 : null;
         if (!isNaN(S) && S && T && r !== null) {
-          let weightedIVCall = calculateWeightedVolatility(filteredCalls, S, T, r, "call");
-          let weightedIVPut = calculateWeightedVolatility(filteredPuts, S, T, r, "put");
-          document.getElementById("vol-calls").value = (weightedIVCall !== null) ? (weightedIVCall * 100).toFixed(2) + "%" : "-";
-          document.getElementById("vol-puts").value = (weightedIVPut !== null) ? (weightedIVPut * 100).toFixed(2) + "%" : "-";
-          globalWeightedCallVol = weightedIVCall;
-          globalWeightedPutVol = weightedIVPut;
+          const weightedIVCall = calculateWeightedVolatility(filteredCalls, S, T, r, "call");
+          const weightedIVPut = calculateWeightedVolatility(filteredPuts, S, T, r, "put");
+          getElement(instrument, "vol-calls").value = (weightedIVCall !== null) ? (weightedIVCall * 100).toFixed(2) + "%" : "-";
+          getElement(instrument, "vol-puts").value = (weightedIVPut !== null) ? (weightedIVPut * 100).toFixed(2) + "%" : "-";
+          instrument.globalWeightedCallVol = weightedIVCall;
+          instrument.globalWeightedPutVol = weightedIVPut;
         }
         const now = new Date();
-        document.getElementById("last-update").textContent = "Última actualización: " + now.toLocaleTimeString();
-        document.getElementById("last-update-visible").textContent = "Última actualización: " + now.toLocaleTimeString();
-        nextUpdateTime = updateInterval / 1000;
-        updateStrategyExamples();
+        getElement(instrument, "last-update").textContent = "Última actualización: " + now.toLocaleTimeString();
+        getElement(instrument, "last-update-visible").textContent = "Última actualización: " + now.toLocaleTimeString();
+        instrument.nextUpdateTime = 10;
+        updateStrategyExamples(instrument);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data for " + instrument.name + ":", error);
       }
     }
 
-    const updateInterval = 10000; // 10 segundos
-    let nextUpdateTime = updateInterval / 1000;
-
-    function fetchGGALStock() {
-      fetch("https://data912.com/live/arg_stocks")
-        .then(response => response.json())
-        .then(data => {
-          const ggalStock = data.find(item => item.symbol === "GGAL");
-          if (ggalStock && ggalStock.c) {
-            document.getElementById("precio-accion").value = ggalStock.c;
-            updateStrategyExamples();
-          }
-        })
-        .catch(error => console.error("Error fetching GGAL stock:", error));
+    async function fetchStockForInstrument(instrument) {
+      try {
+        const response = await fetch("https://data912.com/live/arg_stocks");
+        const data = await response.json();
+        const stock = data.find(item => item.symbol === instrument.stockSymbol);
+        if (stock && stock.c) {
+          getElement(instrument, "precio-accion").value = stock.c;
+          updateStrategyExamples(instrument);
+        }
+      } catch (error) {
+        console.error("Error fetching stock for " + instrument.name + ":", error);
+      }
     }
 
-    /**************************
-     * Registro de Operaciones *
-     **************************/
-    var tradeRecords = [];
-    var profitChart;
-
-    function updateTradeStrikeOptions() {
-      const strikeSelect = document.getElementById("trade-strike");
+    function updateTradeStrikeOptionsForInstrument(instrument) {
+      const strikeSelect = getElement(instrument, "trade-strike");
       let optionsHTML = "";
       const strikes = Object.keys(strikeMapping).map(key => matchStrike(key)).filter(val => val !== null);
       let uniqueStrikes = [...new Set(strikes)];
@@ -659,68 +593,69 @@
       strikeSelect.innerHTML = optionsHTML;
     }
 
-    function updateTradePremiumDefault() {
-      const optionType = document.getElementById("trade-option-type").value;
-      const strikeSelect = document.getElementById("trade-strike");
+    function updateTradePremiumDefaultForInstrument(instrument) {
+      const optionType = getElement(instrument, "trade-option-type").value;
+      const strikeSelect = getElement(instrument, "trade-strike");
       const selectedStrike = strikeSelect.value;
-      const premiumInput = document.getElementById("trade-premium");
+      const premiumInput = getElement(instrument, "trade-premium");
       if (optionType === "call") {
-        let value = defaultPremiumCall[selectedStrike];
+        let value = defaultPremiumCall[instrument.name][selectedStrike];
         premiumInput.value = (value !== undefined) ? value : "";
       } else {
-        let value = defaultPremiumPut[selectedStrike];
+        let value = defaultPremiumPut[instrument.name][selectedStrike];
         premiumInput.value = (value !== undefined) ? value : "";
       }
     }
 
-    function addTrade() {
-      const optionTypeEl = document.getElementById("trade-option-type");
-      const positionEl = document.getElementById("trade-position");
-      const strikeEl = document.getElementById("trade-strike");
-      const premiumEl = document.getElementById("trade-premium");
-      const quantityEl = document.getElementById("trade-quantity");
-
+    function addTradeForInstrument(instrument) {
+      const optionTypeEl = getElement(instrument, "trade-option-type");
+      const positionEl = getElement(instrument, "trade-position");
+      const strikeEl = getElement(instrument, "trade-strike");
+      const premiumEl = getElement(instrument, "trade-premium");
+      const quantityEl = getElement(instrument, "trade-quantity");
       const trade = {
         optionType: optionTypeEl.value,
         position: positionEl.value,
         strike: parseFloat(strikeEl.value),
         premium: parseFloat(premiumEl.value),
-        quantity: parseInt(quantityEl.value) || 1
+        quantity: parseInt(quantityEl.value) || 1,
+        strategy: "" // se asigna cuando se hace toggle en la estrategia
       };
-
       if (isNaN(trade.strike) || isNaN(trade.premium)) {
         alert("Por favor, ingresa valores numéricos válidos para Strike y Prima.");
         return;
       }
-
-      tradeRecords.push(trade);
-      renderTrades();
-      updateProfitChart();
+      if (!instrument.tradeRecords) instrument.tradeRecords = [];
+      instrument.tradeRecords.push(trade);
+      renderTradesForInstrument(instrument);
+      updateProfitChartForInstrument(instrument);
       premiumEl.value = "";
     }
 
-    function deleteTrade(index) {
-      tradeRecords.splice(index, 1);
-      renderTrades();
-      updateProfitChart();
+    function deleteTradeForInstrument(instrument, index) {
+      if (instrument.tradeRecords) {
+        instrument.tradeRecords.splice(index, 1);
+        renderTradesForInstrument(instrument);
+        updateProfitChartForInstrument(instrument);
+      }
     }
 
-    function renderTrades() {
-      const listEl = document.getElementById("trade-list");
-      if (tradeRecords.length === 0) {
+    function renderTradesForInstrument(instrument) {
+      const listEl = getElement(instrument, "trade-list");
+      if (!instrument.tradeRecords || instrument.tradeRecords.length === 0) {
         listEl.innerHTML = "<p>No hay operaciones ingresadas.</p>";
         return;
       }
       let html = "<table style='width:100%; border-collapse: collapse;'><thead><tr style='background:#3949ab; color: white;'><th>Tipo</th><th>Posición</th><th>Strike</th><th>Prima</th><th>Cantidad</th><th>Acción</th></tr></thead><tbody>";
-      tradeRecords.forEach((trade, index) => {
+      instrument.tradeRecords.forEach((trade, index) => {
         html += `<tr style="border-bottom: 1px solid #ddd;">
-                  <td>${trade.optionType.toUpperCase()}</td>
-                  <td>${(trade.position === "long") ? "Compra" : "Venta"}</td>
-                  <td>${trade.strike.toFixed(2)}</td>
-                  <td>${trade.premium.toFixed(2)}</td>
-                  <td>${trade.quantity}</td>
-                  <td><button class="btn" onclick="deleteTrade(${index})">Eliminar</button></td>
-                </tr>`;
+          <td>${trade.optionType.toUpperCase()}</td>
+          <td>${trade.position === "long" ? "Compra" : "Venta"}</td>
+          <td>${trade.strike.toFixed(2)}</td>
+          <td>${trade.premium.toFixed(2)}</td>
+          <td>${trade.quantity}</td>
+          <td><button class="btn" onclick="deleteTradeForInstrument(instrumentsConfig['${instrument.name}'], ${index})">Eliminar</button></td>
+        </tr>`;
       });
       html += "</tbody></table>";
       listEl.innerHTML = html;
@@ -728,51 +663,54 @@
 
     function computeTradeProfit(trade, underlying) {
       if (trade.optionType === "call") {
-        if (trade.position === "long")
-          return trade.quantity * (Math.max(underlying - trade.strike, 0) - trade.premium);
-        else
-          return trade.quantity * (trade.premium - Math.max(underlying - trade.strike, 0));
+        return trade.position === "long"
+          ? trade.quantity * (Math.max(underlying - trade.strike, 0) - trade.premium)
+          : trade.quantity * (trade.premium - Math.max(underlying - trade.strike, 0));
       } else {
-        if (trade.position === "long")
-          return trade.quantity * (Math.max(trade.strike - underlying, 0) - trade.premium);
-        else
-          return trade.quantity * (trade.premium - Math.max(trade.strike - underlying, 0));
+        return trade.position === "long"
+          ? trade.quantity * (Math.max(trade.strike - underlying, 0) - trade.premium)
+          : trade.quantity * (trade.premium - Math.max(trade.strike - underlying, 0));
       }
     }
 
-    function calculateTotalProfit(underlying) {
+    function calculateTotalProfitForInstrument(instrument, underlying) {
       let total = 0;
-      tradeRecords.forEach(trade => {
-        total += computeTradeProfit(trade, underlying);
-      });
+      if (instrument.tradeRecords) {
+        instrument.tradeRecords.forEach(trade => {
+          total += computeTradeProfit(trade, underlying);
+        });
+      }
       return total;
     }
 
-    function generateProfitChartData() {
-      if (tradeRecords.length === 0)
+    function generateProfitChartDataForInstrument(instrument) {
+      if (!instrument.tradeRecords || instrument.tradeRecords.length === 0)
         return { x: [], y: [] };
-      const strikes = tradeRecords.map(tr => tr.strike);
-      let minStrike = Math.min(...strikes);
-      let maxStrike = Math.max(...strikes);
-      let margin = (maxStrike - minStrike) * 0.5;
-      if (margin === 0) margin = minStrike * 0.5;
-      let xMin = Math.max(0, minStrike - margin);
-      let xMax = maxStrike + margin;
-      let step = (xMax - xMin) / 100;
-      let xValues = [];
-      let yValues = [];
+      const strikes = instrument.tradeRecords.map(tr => tr.strike);
+      const minStrike = Math.min(...strikes);
+      const maxStrike = Math.max(...strikes);
+      let marginVal = (maxStrike - minStrike) * 0.5;
+      if (marginVal === 0) marginVal = minStrike * 0.5;
+      const xMin = Math.max(0, minStrike - marginVal);
+      const xMax = maxStrike + marginVal;
+      const step = (xMax - xMin) / 100;
+      const xValues = [];
+      const yValues = [];
       for (let x = xMin; x <= xMax; x += step) {
         xValues.push(x.toFixed(2));
-        yValues.push(calculateTotalProfit(x));
+        yValues.push(calculateTotalProfitForInstrument(instrument, x));
       }
       return { x: xValues, y: yValues };
     }
 
-    function updateProfitChart() {
-      const data = generateProfitChartData();
-      if (!profitChart) {
-        const ctx = document.getElementById('profitChart').getContext('2d');
-        profitChart = new Chart(ctx, {
+    let profitChartInstances = {};
+
+    function updateProfitChartForInstrument(instrument) {
+      const data = generateProfitChartDataForInstrument(instrument);
+      const canvasId = "profitChart" + instrument.suffix;
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      if (!profitChartInstances[instrument.name]) {
+        profitChartInstances[instrument.name] = new Chart(ctx, {
           type: 'line',
           data: {
             labels: data.x,
@@ -794,435 +732,683 @@
           }
         });
       } else {
-        profitChart.data.labels = data.x;
-        profitChart.data.datasets[0].data = data.y;
-        profitChart.update();
+        profitChartInstances[instrument.name].data.labels = data.x;
+        profitChartInstances[instrument.name].data.datasets[0].data = data.y;
+        profitChartInstances[instrument.name].update();
       }
     }
 
-    /**************************
-     * Estrategias Posibles
-     **************************/
-    function updateStrategyExamples() {
-      var S = parseFloat(document.getElementById("precio-accion").value);
+    function updateStrategyExamples(instrument) {
+      const S = parseFloat(getElement(instrument, "precio-accion").value);
       if (isNaN(S) || S <= 0) return;
-      var margin = S * 0.05;
-      var sentiment = document.getElementById("sentimiento").value;
-      document.getElementById("example-covered-call").textContent = (sentiment === "alcista") ?
-        "Mantener acción y vender call a strike " + (S + margin).toFixed(2) : "No recomendado";
-      document.getElementById("example-protective-put").textContent = (sentiment === "bajista") ?
-        "Comprar put a strike " + (S - margin).toFixed(2) : "No recomendado";
-      document.getElementById("example-bull-call-spread").textContent = (sentiment === "alcista") ?
-        "Comprar call a strike " + (S - margin).toFixed(2) + " y vender call a strike " + (S + margin).toFixed(2) : "No recomendado";
-      document.getElementById("example-bear-put-spread").textContent = (sentiment === "bajista") ?
-        "Comprar put a strike " + (S + margin).toFixed(2) + " y vender put a strike " + (S - margin).toFixed(2) : "No recomendado";
-      document.getElementById("example-long-straddle").textContent = "Comprar call y put a strike " + S.toFixed(2);
-      document.getElementById("example-long-strangle").textContent = "Comprar call a strike " + (S + margin).toFixed(2) + " y put a strike " + (S - margin).toFixed(2);
-      document.getElementById("example-iron-condor").textContent = "Vender call a strike " + (S + margin).toFixed(2) +
-        ", comprar call a strike " + (S + 2 * margin).toFixed(2) + ", vender put a strike " + (S - margin).toFixed(2) +
-        ", comprar put a strike " + (S - 2 * margin).toFixed(2);
-      document.getElementById("example-butterfly-spread").textContent = "Comprar call a strike " + (S - margin).toFixed(2) +
-        ", vender 2 calls a strike " + S.toFixed(2) + ", comprar call a strike " + (S + margin).toFixed(2);
-      document.getElementById("example-calendar-spread").textContent = "Vender opción corta y comprar opción larga a strike " + S.toFixed(2);
+      const marginVal = S * 0.05;
+      const sentiment = getElement(instrument, "sentimiento").value;
+      getElement(instrument, "example-covered-call").textContent = (sentiment === "alcista")
+        ? "Mantener acción y vender call a strike " + (S + marginVal).toFixed(2)
+        : "No recomendado";
+      getElement(instrument, "example-protective-put").textContent = (sentiment === "bajista")
+        ? "Comprar put a strike " + (S - marginVal).toFixed(2)
+        : "No recomendado";
+      getElement(instrument, "example-bull-call-spread").textContent = (sentiment === "alcista")
+        ? "Comprar call a strike " + (S - marginVal).toFixed(2) + " y vender call a strike " + (S + marginVal).toFixed(2)
+        : "No recomendado";
+      getElement(instrument, "example-bear-put-spread").textContent = (sentiment === "bajista")
+        ? "Comprar put a strike " + (S + marginVal).toFixed(2) + " y vender put a strike " + (S - marginVal).toFixed(2)
+        : "No recomendado";
+      getElement(instrument, "example-long-straddle").textContent = "Comprar call y put a strike " + S.toFixed(2);
+      getElement(instrument, "example-long-strangle").textContent = "Comprar call a strike " + (S + marginVal).toFixed(2) +
+        " y put a strike " + (S - marginVal).toFixed(2);
+      getElement(instrument, "example-iron-condor").textContent = "Vender call a strike " + (S + marginVal).toFixed(2) +
+        ", comprar call a strike " + (S + 2 * marginVal).toFixed(2) + ", vender put a strike " + (S - marginVal).toFixed(2) +
+        ", comprar put a strike " + (S - 2 * marginVal).toFixed(2);
+      getElement(instrument, "example-butterfly-spread").textContent = "Comprar call a strike " + (S - marginVal).toFixed(2) +
+        ", vender 2 calls a strike " + S.toFixed(2) + ", comprar call a strike " + (S + marginVal).toFixed(2);
+      getElement(instrument, "example-calendar-spread").textContent = "Vender opción corta y comprar opción larga a strike " + S.toFixed(2);
     }
 
-    // Función para gestionar la adición/borrado de estrategias en el Registro de Operaciones
-    function toggleStrategyTrade(strategyId, isChecked) {
-      var S = parseFloat(document.getElementById("precio-accion").value);
-      var hoy = document.getElementById("fecha-hoy").value;
-      var vto = document.getElementById("vto-opciones").value;
-      var rVal = parseFloat(document.getElementById("tasa-libre-riesgo").value);
-      var volHist = parseFloat(document.getElementById("volatilidad-historica").value) / 100;
+    function toggleStrategyTrade(instrument, strategyId, isChecked) {
+      const S = parseFloat(getElement(instrument, "precio-accion").value);
+      const hoy = getElement(instrument, "fecha-hoy").value;
+      const vto = getElement(instrument, "vto-opciones").value;
+      const rVal = parseFloat(getElement(instrument, "tasa-libre-riesgo").value);
+      const volHist = parseFloat(getElement(instrument, "volatilidad-historica").value) / 100;
       if (isNaN(S) || !S || !hoy || !vto || isNaN(rVal)) {
         alert("Completar datos necesarios (Precio, Fecha, Vto, etc.)");
         return;
       }
-      var r = rVal / 100;
-      var dateHoy = new Date(hoy);
-      var dateVto = new Date(vto);
-      var diffDays = Math.round((dateVto - dateHoy) / (1000 * 60 * 60 * 24));
+      const r = rVal / 100;
+      const dateHoy = new Date(hoy);
+      const dateVto = new Date(vto);
+      const diffDays = Math.round((dateVto - dateHoy) / (1000 * 60 * 60 * 24));
       if (diffDays <= 0) {
         alert("El vencimiento debe ser en el futuro");
         return;
       }
-      var T = diffDays / 365;
-      var sigma = (globalWeightedCallVol != null) ? globalWeightedCallVol : volHist;
-      var margin = S * 0.05;
-      var sentiment = document.getElementById("sentimiento").value;
-      var newTrades = [];
+      const T = diffDays / 365;
+      const sigma = (instrument.globalWeightedCallVol != null) ? instrument.globalWeightedCallVol : volHist;
+      const marginVal = S * 0.05;
+      const sentiment = getElement(instrument, "sentimiento").value;
+      let newTrades = [];
       switch (strategyId) {
         case "coveredCall":
           if (sentiment !== "alcista") {
             alert("Covered Call no es recomendado en sentimiento bajista.");
-            uncheckStrategyCheckbox("coveredCall");
+            uncheckStrategyCheckbox(instrument, "coveredCall");
             return;
           }
-          var strike = S + margin;
-          var premium = blackScholesPrice(S, strike, T, r, sigma, "call");
-          newTrades.push({ optionType: "call", position: "short", strike: strike, premium: premium, quantity: 1, strategy: "coveredCall" });
+          const strikeCC = S + marginVal;
+          const premiumCC = blackScholesPrice(S, strikeCC, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "short", strike: strikeCC, premium: premiumCC, quantity: 1, strategy: "coveredCall" });
           break;
         case "protectivePut":
           if (sentiment !== "bajista") {
             alert("Protective Put no es recomendado en sentimiento alcista.");
-            uncheckStrategyCheckbox("protectivePut");
+            uncheckStrategyCheckbox(instrument, "protectivePut");
             return;
           }
-          var strike = S - margin;
-          var premium = blackScholesPrice(S, strike, T, r, sigma, "put");
-          newTrades.push({ optionType: "put", position: "long", strike: strike, premium: premium, quantity: 1, strategy: "protectivePut" });
+          const strikePP = S - marginVal;
+          const premiumPP = blackScholesPrice(S, strikePP, T, r, sigma, "put");
+          newTrades.push({ optionType: "put", position: "long", strike: strikePP, premium: premiumPP, quantity: 1, strategy: "protectivePut" });
           break;
         case "bullCallSpread":
           if (sentiment !== "alcista") {
             alert("Bull Call Spread no es recomendado en sentimiento bajista.");
-            uncheckStrategyCheckbox("bullCallSpread");
+            uncheckStrategyCheckbox(instrument, "bullCallSpread");
             return;
           }
-          var strikeLong = S - margin;
-          var strikeShort = S + margin;
-          var premiumLong = blackScholesPrice(S, strikeLong, T, r, sigma, "call");
-          var premiumShort = blackScholesPrice(S, strikeShort, T, r, sigma, "call");
-          newTrades.push({ optionType: "call", position: "long", strike: strikeLong, premium: premiumLong, quantity: 1, strategy: "bullCallSpread_long" });
-          newTrades.push({ optionType: "call", position: "short", strike: strikeShort, premium: premiumShort, quantity: 1, strategy: "bullCallSpread_short" });
+          const strikeLongBC = S - marginVal;
+          const strikeShortBC = S + marginVal;
+          const premiumLongBC = blackScholesPrice(S, strikeLongBC, T, r, sigma, "call");
+          const premiumShortBC = blackScholesPrice(S, strikeShortBC, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLongBC, premium: premiumLongBC, quantity: 1, strategy: "bullCallSpread_long" });
+          newTrades.push({ optionType: "call", position: "short", strike: strikeShortBC, premium: premiumShortBC, quantity: 1, strategy: "bullCallSpread_short" });
           break;
         case "bearPutSpread":
           if (sentiment !== "bajista") {
             alert("Bear Put Spread no es recomendado en sentimiento alcista.");
-            uncheckStrategyCheckbox("bearPutSpread");
+            uncheckStrategyCheckbox(instrument, "bearPutSpread");
             return;
           }
-          var strikeLong = S + margin;
-          var strikeShort = S - margin;
-          var premiumLong = blackScholesPrice(S, strikeLong, T, r, sigma, "put");
-          var premiumShort = blackScholesPrice(S, strikeShort, T, r, sigma, "put");
-          newTrades.push({ optionType: "put", position: "long", strike: strikeLong, premium: premiumLong, quantity: 1, strategy: "bearPutSpread_long" });
-          newTrades.push({ optionType: "put", position: "short", strike: strikeShort, premium: premiumShort, quantity: 1, strategy: "bearPutSpread_short" });
+          const strikeLongBP = S + marginVal;
+          const strikeShortBP = S - marginVal;
+          const premiumLongBP = blackScholesPrice(S, strikeLongBP, T, r, sigma, "put");
+          const premiumShortBP = blackScholesPrice(S, strikeShortBP, T, r, sigma, "put");
+          newTrades.push({ optionType: "put", position: "long", strike: strikeLongBP, premium: premiumLongBP, quantity: 1, strategy: "bearPutSpread_long" });
+          newTrades.push({ optionType: "put", position: "short", strike: strikeShortBP, premium: premiumShortBP, quantity: 1, strategy: "bearPutSpread_short" });
           break;
         case "longStraddle":
-          var premiumCall = blackScholesPrice(S, S, T, r, sigma, "call");
-          var premiumPut = blackScholesPrice(S, S, T, r, sigma, "put");
-          newTrades.push({ optionType: "call", position: "long", strike: S, premium: premiumCall, quantity: 1, strategy: "longStraddle_call" });
-          newTrades.push({ optionType: "put", position: "long", strike: S, premium: premiumPut, quantity: 1, strategy: "longStraddle_put" });
+          const premiumCallLS = blackScholesPrice(S, S, T, r, sigma, "call");
+          const premiumPutLS = blackScholesPrice(S, S, T, r, sigma, "put");
+          newTrades.push({ optionType: "call", position: "long", strike: S, premium: premiumCallLS, quantity: 1, strategy: "longStraddle_call" });
+          newTrades.push({ optionType: "put", position: "long", strike: S, premium: premiumPutLS, quantity: 1, strategy: "longStraddle_put" });
           break;
         case "longStrangle":
-          var strikeCall = S + margin;
-          var strikePut = S - margin;
-          var premiumCall = blackScholesPrice(S, strikeCall, T, r, sigma, "call");
-          var premiumPut = blackScholesPrice(S, strikePut, T, r, sigma, "put");
-          newTrades.push({ optionType: "call", position: "long", strike: strikeCall, premium: premiumCall, quantity: 1, strategy: "longStrangle_call" });
-          newTrades.push({ optionType: "put", position: "long", strike: strikePut, premium: premiumPut, quantity: 1, strategy: "longStrangle_put" });
+          const strikeCallLS = S + marginVal;
+          const strikePutLS = S - marginVal;
+          const premiumCallLS2 = blackScholesPrice(S, strikeCallLS, T, r, sigma, "call");
+          const premiumPutLS2 = blackScholesPrice(S, strikePutLS, T, r, sigma, "put");
+          newTrades.push({ optionType: "call", position: "long", strike: strikeCallLS, premium: premiumCallLS2, quantity: 1, strategy: "longStrangle_call" });
+          newTrades.push({ optionType: "put", position: "long", strike: strikePutLS, premium: premiumPutLS2, quantity: 1, strategy: "longStrangle_put" });
           break;
         case "ironCondor":
-          var strikeShortCall = S + margin;
-          var strikeLongCall = S + 2 * margin;
-          var strikeShortPut = S - margin;
-          var strikeLongPut = S - 2 * margin;
-          var premiumShortCall = blackScholesPrice(S, strikeShortCall, T, r, sigma, "call");
-          var premiumLongCall = blackScholesPrice(S, strikeLongCall, T, r, sigma, "call");
-          var premiumShortPut = blackScholesPrice(S, strikeShortPut, T, r, sigma, "put");
-          var premiumLongPut = blackScholesPrice(S, strikeLongPut, T, r, sigma, "put");
-          newTrades.push({ optionType: "call", position: "short", strike: strikeShortCall, premium: premiumShortCall, quantity: 1, strategy: "ironCondor_shortCall" });
-          newTrades.push({ optionType: "call", position: "long", strike: strikeLongCall, premium: premiumLongCall, quantity: 1, strategy: "ironCondor_longCall" });
-          newTrades.push({ optionType: "put", position: "short", strike: strikeShortPut, premium: premiumShortPut, quantity: 1, strategy: "ironCondor_shortPut" });
-          newTrades.push({ optionType: "put", position: "long", strike: strikeLongPut, premium: premiumLongPut, quantity: 1, strategy: "ironCondor_longPut" });
+          const strikeShortCallIC = S + marginVal;
+          const strikeLongCallIC = S + 2 * marginVal;
+          const strikeShortPutIC = S - marginVal;
+          const strikeLongPutIC = S - 2 * marginVal;
+          const premiumShortCallIC = blackScholesPrice(S, strikeShortCallIC, T, r, sigma, "call");
+          const premiumLongCallIC = blackScholesPrice(S, strikeLongCallIC, T, r, sigma, "call");
+          const premiumShortPutIC = blackScholesPrice(S, strikeShortPutIC, T, r, sigma, "put");
+          const premiumLongPutIC = blackScholesPrice(S, strikeLongPutIC, T, r, sigma, "put");
+          newTrades.push({ optionType: "call", position: "short", strike: strikeShortCallIC, premium: premiumShortCallIC, quantity: 1, strategy: "ironCondor_shortCall" });
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLongCallIC, premium: premiumLongCallIC, quantity: 1, strategy: "ironCondor_longCall" });
+          newTrades.push({ optionType: "put", position: "short", strike: strikeShortPutIC, premium: premiumShortPutIC, quantity: 1, strategy: "ironCondor_shortPut" });
+          newTrades.push({ optionType: "put", position: "long", strike: strikeLongPutIC, premium: premiumLongPutIC, quantity: 1, strategy: "ironCondor_longPut" });
           break;
         case "butterflySpread":
-          var strikeLong = S - margin;
-          var strikeShort = S;
-          var strikeLong2 = S + margin;
-          var premiumLong = blackScholesPrice(S, strikeLong, T, r, sigma, "call");
-          var premiumShort = blackScholesPrice(S, strikeShort, T, r, sigma, "call");
-          var premiumLong2 = blackScholesPrice(S, strikeLong2, T, r, sigma, "call");
-          newTrades.push({ optionType: "call", position: "long", strike: strikeLong, premium: premiumLong, quantity: 1, strategy: "butterflySpread_longCall" });
-          newTrades.push({ optionType: "call", position: "short", strike: strikeShort, premium: premiumShort, quantity: 2, strategy: "butterflySpread_shortCall" });
-          newTrades.push({ optionType: "call", position: "long", strike: strikeLong2, premium: premiumLong2, quantity: 1, strategy: "butterflySpread_longCall2" });
+          const strikeLongB = S - marginVal;
+          const strikeShortB = S;
+          const strikeLong2B = S + marginVal;
+          const premiumLongB = blackScholesPrice(S, strikeLongB, T, r, sigma, "call");
+          const premiumShortB = blackScholesPrice(S, strikeShortB, T, r, sigma, "call");
+          const premiumLong2B = blackScholesPrice(S, strikeLong2B, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLongB, premium: premiumLongB, quantity: 1, strategy: "butterflySpread_longCall" });
+          newTrades.push({ optionType: "call", position: "short", strike: strikeShortB, premium: premiumShortB, quantity: 2, strategy: "butterflySpread_shortCall" });
+          newTrades.push({ optionType: "call", position: "long", strike: strikeLong2B, premium: premiumLong2B, quantity: 1, strategy: "butterflySpread_longCall2" });
           break;
         case "calendarSpread":
-          var premium = blackScholesPrice(S, S, T, r, sigma, "call");
-          newTrades.push({ optionType: "call", position: "short", strike: S, premium: premium, quantity: 1, strategy: "calendarSpread" });
+          const premiumCS = blackScholesPrice(S, S, T, r, sigma, "call");
+          newTrades.push({ optionType: "call", position: "short", strike: S, premium: premiumCS, quantity: 1, strategy: "calendarSpread" });
           break;
         default:
           break;
       }
+      if (!instrument.tradeRecords) instrument.tradeRecords = [];
       if (isChecked) {
-        newTrades.forEach(function(trade) {
-          tradeRecords.push(trade);
+        newTrades.forEach(trade => {
+          instrument.tradeRecords.push(trade);
         });
       } else {
-        // Eliminar todas las operaciones relacionadas con la estrategia indicada
-        tradeRecords = tradeRecords.filter(function(trade) {
-          return trade.strategy.indexOf(strategyId) !== 0;
-        });
+        instrument.tradeRecords = instrument.tradeRecords.filter(trade => trade.strategy.indexOf(strategyId) !== 0);
       }
-      renderTrades();
-      updateProfitChart();
+      renderTradesForInstrument(instrument);
+      updateProfitChartForInstrument(instrument);
     }
 
-    function uncheckStrategyCheckbox(strategyId) {
-      var row = document.getElementById("strategy-" + strategyId);
+    function uncheckStrategyCheckbox(instrument, strategyId) {
+      const row = document.getElementById("strategy-" + strategyId + instrument.suffix);
       if (row) {
-        var checkbox = row.querySelector("input[type='checkbox']");
-        if (checkbox) {
-          checkbox.checked = false;
-        }
+        const checkbox = row.querySelector("input[type='checkbox']");
+        if (checkbox) checkbox.checked = false;
       }
     }
 
-    function toggleStrategies() {
-      var el = document.getElementById("strategies");
+    function toggleStrategiesForInstrument(instrument) {
+      const el = getElement(instrument, "strategies");
       el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
-      updateStrategyExamples();
+      updateStrategyExamples(instrument);
     }
 
-    /**************************
-     * Inicialización y eventos
-     **************************/
-    window.addEventListener("load", function() {
-      const hoyInput = document.getElementById("fecha-hoy");
-      if (hoyInput) {
-        hoyInput.value = new Date().toISOString().split("T")[0];
+    // Inicialización de cada instrumento. Al cargar la página se inicializan todos los instrumentos definidos.
+    function initInstrument(instrument) {
+      instrument.previousCallData = {};
+      instrument.previousPutData = {};
+      currentSortCall[instrument.name] = { columnIndex: 1, ascending: true };
+      currentSortPut[instrument.name] = { columnIndex: 1, ascending: true };
+      instrument.nextUpdateTime = 10;
+      // Establecer la fecha de hoy
+      const hoyElem = getElement(instrument, "fecha-hoy");
+      if (hoyElem) hoyElem.value = new Date().toISOString().split("T")[0];
+      updateVtoDateForInstrument(instrument);
+      fetchStockForInstrument(instrument);
+      fetchDataForInstrument(instrument);
+      updateTradeStrikeOptionsForInstrument(instrument);
+      updateStrategyExamples(instrument);
+      setInterval(() => { fetchDataForInstrument(instrument); }, updateInterval);
+      setInterval(() => { updateCountdownForInstrument(instrument); }, 1000);
+    }
+
+    // Función para cambiar de pestaña (solapa) entre instrumentos
+    function switchTab(tabName) {
+      for (const key in instrumentsConfig) {
+        const inst = instrumentsConfig[key];
+        document.getElementById(inst.containerId).style.display = (inst.name === tabName) ? "block" : "none";
       }
-      updateVtoDate();
-      fetchGGALStock();
-      fetchData();
-      updateTradeStrikeOptions();
-      updateStrategyExamples();
+    }
+
+    window.addEventListener("load", () => {
+      for (const key in instrumentsConfig) {
+        initInstrument(instrumentsConfig[key]);
+      }
     });
-    setInterval(fetchData, updateInterval);
-    setInterval(updateCountdown, 1000);
   </script>
 </head>
 <body>
   <header>
-    <h1>OPCIONES GGAL - MDC COSITO</h1>
+    <h1>OPCIONES - MDC COSITO</h1>
     <button class="btn" onclick="document.body.classList.toggle('dark')">Modo Oscuro</button>
+    <div class="tabs">
+      <button onclick="switchTab('GGAL')">GGAL</button>
+      <button onclick="switchTab('YPFD')">YPFD</button>
+    </div>
   </header>
 
-  <!-- Contenedor de Inputs y Volatilidad -->
-  <section id="input-fields">
-    <div class="input-row">
-      <label for="precio-accion">Precio Acción:</label>
-      <input type="number" id="precio-accion" step="0.01" placeholder="Precio desde GGAL" onchange="fetchData(); updateStrategyExamples();" />
-    </div>
-    <div class="input-row">
-      <label for="fecha-hoy">Fecha Hoy:</label>
-      <input type="date" id="fecha-hoy" onchange="fetchData(); updateStrategyExamples();" />
-    </div>
-    <div class="input-row">
-      <label for="vto-opciones">Vto opciones:</label>
-      <input type="date" id="vto-opciones" value="2025-04-16" onchange="fetchData();" />
-    </div>
-    <div class="input-row">
-      <label for="volatilidad-historica">Vol. histórica (%):</label>
-      <input type="number" id="volatilidad-historica" value="40" step="0.01" onchange="fetchData();" />
-    </div>
-    <div class="input-row">
-      <label for="tasa-libre-riesgo">Tasa libre (%):</label>
-      <input type="number" id="tasa-libre-riesgo" value="25" step="0.01" onchange="fetchData();" />
-    </div>
-    <div class="input-row">
-      <label for="plazo-dias">Plazo (días):</label>
-      <input type="number" id="plazo-dias" readonly />
-    </div>
-    <div class="input-row">
-      <label for="vol-calls">Vol. Calls:</label>
-      <input type="text" id="vol-calls" readonly />
-    </div>
-    <div class="input-row">
-      <label for="vol-puts">Vol. Puts:</label>
-      <input type="text" id="vol-puts" readonly />
-    </div>
-  </section>
-
-  <!-- Contenido principal -->
-  <div id="main-content">
-    <div class="last-update-visible" id="last-update-visible">Última actualización: -</div>
-    <div class="controls">
-      <label for="vencimiento-filter">Filtrar por Vencimiento:</label>
-      <select id="vencimiento-filter" onchange="updateVtoDate(); fetchData();">
-        <option value="A">Abril</option>
-        <option value="JU">Junio</option>
-        <option value="AG">Agosto</option>
-      </select>
-      <label for="sentimiento">Sentimiento:</label>
-      <select id="sentimiento" onchange="updateStrategyExamples()">
-        <option value="alcista">Alcista</option>
-        <option value="bajista">Bajista</option>
-      </select>
-      <button class="btn" onclick="toggleStrategies()">Mostrar Estrategias</button>
-    </div>
-
-    <!-- Sección de Estrategias -->
-    <div id="strategies">
-      <h2>Estrategias Posibles</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Estrategia</th>
-            <th>Descripción</th>
-            <th>Acción Recomendada</th>
-            <th>Ejemplo</th>
-            <th>Probar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr id="strategy-coveredCall">
-            <td>Covered Call</td>
-            <td>Poseer la acción y vender una call a strike cercano</td>
-            <td>Mantener acción, vender call</td>
-            <td id="example-covered-call"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('coveredCall', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-protectivePut">
-            <td>Protective Put</td>
-            <td>Poseer la acción y comprar una put como seguro</td>
-            <td>Comprar put</td>
-            <td id="example-protective-put"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('protectivePut', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-bullCallSpread">
-            <td>Bull Call Spread</td>
-            <td>Compra de call a strike inferior y venta de call a strike superior</td>
-            <td>Long call y short call</td>
-            <td id="example-bull-call-spread"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('bullCallSpread', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-bearPutSpread">
-            <td>Bear Put Spread</td>
-            <td>Compra de put a strike superior y venta de put a strike inferior</td>
-            <td>Long put y short put</td>
-            <td id="example-bear-put-spread"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('bearPutSpread', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-longStraddle">
-            <td>Long Straddle</td>
-            <td>Compra simultánea de call y put en el mismo strike</td>
-            <td>Comprar call y put</td>
-            <td id="example-long-straddle"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('longStraddle', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-longStrangle">
-            <td>Long Strangle</td>
-            <td>Compra de call y put en strikes diferentes</td>
-            <td>Comprar call y put</td>
-            <td id="example-long-strangle"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('longStrangle', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-ironCondor">
-            <td>Iron Condor</td>
-            <td>Venta de un call spread y un put spread para rangos limitados</td>
-            <td>Venta de spreads</td>
-            <td id="example-iron-condor"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('ironCondor', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-butterflySpread">
-            <td>Butterfly Spread</td>
-            <td>Combinación de posiciones para aprovechar baja volatilidad</td>
-            <td>Posición neutral</td>
-            <td id="example-butterfly-spread"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('butterflySpread', this.checked)" /></td>
-          </tr>
-          <tr id="strategy-calendarSpread">
-            <td>Calendar Spread</td>
-            <td>Explotar diferencia en vencimientos</td>
-            <td>Vender opción a corto plazo, comprar a largo plazo</td>
-            <td id="example-calendar-spread"></td>
-            <td><input type="checkbox" onchange="toggleStrategyTrade('calendarSpread', this.checked)" /></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Opciones Tables -->
-    <main>
-      <h2>Opciones CALL (GFGC)</h2>
-      <table id="call-table">
-        <thead>
-          <tr>
-            <th onclick="sortTable('call-table', 0)" title="Símbolo de la opción">Symbol</th>
-            <th onclick="sortTable('call-table', 1)" title="Precio de ejercicio">Strike</th>
-            <th onclick="sortTable('call-table', 2)" title="Teórico (Black-Scholes)">Teórico</th>
-            <th onclick="sortTable('call-table', 3)" title="Último Precio">Último</th>
-            <th onclick="sortTable('call-table', 4)" title="Diferencia % (vs Teórico)">Diferencia %</th>
-            <th onclick="sortTable('call-table', 5)" title="Qty Bid">Qty Bid</th>
-            <th onclick="sortTable('call-table', 6)" title="Precio Bid">Bid</th>
-            <th onclick="sortTable('call-table', 7)" title="Precio Ask">Ask</th>
-            <th onclick="sortTable('call-table', 8)" title="Qty Ask">Qty Ask</th>
-            <th onclick="sortTable('call-table', 9)" title="Operaciones">Operaciones</th>
-            <th onclick="sortTable('call-table', 10)" title="% Cambio">% Cambio</th>
-            <th onclick="sortTable('call-table', 11)" title="Volatilidad Implícita" style="border-left: 2px solid red;">Volatilidad Implícita</th>
-            <th onclick="sortTable('call-table', 12)" title="Delta">Delta</th>
-            <th onclick="sortTable('call-table', 13)" title="Gamma">Gamma</th>
-            <th onclick="sortTable('call-table', 14)" title="Vega">Vega</th>
-            <th onclick="sortTable('call-table', 15)" title="Theta">Theta</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Datos generados dinámicamente -->
-        </tbody>
-      </table>
-
-      <h2>Opciones PUT (GFGV)</h2>
-      <table id="put-table">
-        <thead>
-          <tr>
-            <th onclick="sortTable('put-table', 0)" title="Símbolo de la opción">Symbol</th>
-            <th onclick="sortTable('put-table', 1)" title="Precio de ejercicio">Strike</th>
-            <th onclick="sortTable('put-table', 2)" title="Teórico (Black-Scholes)">Teórico</th>
-            <th onclick="sortTable('put-table', 3)" title="Último Precio">Último</th>
-            <th onclick="sortTable('put-table', 4)" title="Diferencia % (vs Teórico)">Diferencia %</th>
-            <th onclick="sortTable('put-table', 5)" title="Qty Bid">Qty Bid</th>
-            <th onclick="sortTable('put-table', 6)" title="Precio Bid">Bid</th>
-            <th onclick="sortTable('put-table', 7)" title="Precio Ask">Ask</th>
-            <th onclick="sortTable('put-table', 8)" title="Qty Ask">Qty Ask</th>
-            <th onclick="sortTable('put-table', 9)" title="Operaciones">Operaciones</th>
-            <th onclick="sortTable('put-table', 10)" title="% Cambio">% Cambio</th>
-            <th onclick="sortTable('put-table', 11)" title="Volatilidad Implícita" style="border-left: 2px solid red;">Volatilidad Implícita</th>
-            <th onclick="sortTable('put-table', 12)" title="Delta">Delta</th>
-            <th onclick="sortTable('put-table', 13)" title="Gamma">Gamma</th>
-            <th onclick="sortTable('put-table', 14)" title="Vega">Vega</th>
-            <th onclick="sortTable('put-table', 15)" title="Theta">Theta</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Datos generados dinámicamente -->
-        </tbody>
-      </table>
-    </main>
-
-    <!-- Registro de Operaciones y Gráfico de Payoff -->
-    <section id="trade-records">
-      <h2>Registro de Operaciones</h2>
-      <div class="trade-form">
-        <label for="trade-option-type">Tipo de Opción:</label>
-        <select id="trade-option-type" onchange="updateTradePremiumDefault()">
-          <option value="call">Call</option>
-          <option value="put">Put</option>
-        </select>
-        <label for="trade-position">Posición:</label>
-        <select id="trade-position">
-          <option value="long">Compra (Long)</option>
-          <option value="short">Venta (Short)</option>
-        </select>
-        <label for="trade-strike">Strike:</label>
-        <select id="trade-strike" onchange="updateTradePremiumDefault()">
-          <!-- Opciones se poblarán automáticamente -->
-        </select>
-        <label for="trade-premium">Prima:</label>
-        <input type="number" id="trade-premium" step="0.01" />
-        <label for="trade-quantity">Cantidad:</label>
-        <input type="number" id="trade-quantity" value="1" step="1" />
-        <button class="btn" onclick="addTrade()">Agregar Operación</button>
+  <!-- Contenedor para GGAL -->
+  <div id="ggal-content">
+    <!-- Inputs para GGAL -->
+    <section class="input-fields" id="input-fields">
+      <div class="input-row">
+        <label for="precio-accion">Precio Acción:</label>
+        <input type="number" id="precio-accion" step="0.01" placeholder="Precio desde GGAL" onchange="fetchDataForInstrument(instrumentsConfig['GGAL']); updateStrategyExamples(instrumentsConfig['GGAL']);" />
       </div>
-      <div id="trade-list">
-        <!-- Lista de operaciones ingresadas -->
+      <div class="input-row">
+        <label for="fecha-hoy">Fecha Hoy:</label>
+        <input type="date" id="fecha-hoy" onchange="fetchDataForInstrument(instrumentsConfig['GGAL']); updateStrategyExamples(instrumentsConfig['GGAL']);" />
       </div>
-      <canvas id="profitChart" style="max-width: 100%; height: 300px;"></canvas>
+      <div class="input-row">
+        <label for="vto-opciones">Vto opciones:</label>
+        <input type="date" id="vto-opciones" value="2025-04-16" onchange="fetchDataForInstrument(instrumentsConfig['GGAL']);" />
+      </div>
+      <div class="input-row">
+        <label for="volatilidad-historica">Vol. histórica (%):</label>
+        <input type="number" id="volatilidad-historica" value="40" step="0.01" onchange="fetchDataForInstrument(instrumentsConfig['GGAL']);" />
+      </div>
+      <div class="input-row">
+        <label for="tasa-libre-riesgo">Tasa libre (%):</label>
+        <input type="number" id="tasa-libre-riesgo" value="25" step="0.01" onchange="fetchDataForInstrument(instrumentsConfig['GGAL']);" />
+      </div>
+      <div class="input-row">
+        <label for="plazo-dias">Plazo (días):</label>
+        <input type="number" id="plazo-dias" readonly />
+      </div>
+      <div class="input-row">
+        <label for="vol-calls">Vol. Calls:</label>
+        <input type="text" id="vol-calls" readonly />
+      </div>
+      <div class="input-row">
+        <label for="vol-puts">Vol. Puts:</label>
+        <input type="text" id="vol-puts" readonly />
+      </div>
     </section>
 
-    <!-- Update Info -->
-    <div class="update-info">
-      <p id="last-update">Última actualización: -</p>
-      <p id="next-update">Próxima actualización en: 10 segundos</p>
+    <div id="main-content">
+      <div class="last-update-visible" id="last-update-visible">Última actualización: -</div>
+      <div class="controls">
+        <label for="vencimiento-filter">Filtrar por Vencimiento:</label>
+        <select id="vencimiento-filter" onchange="updateVtoDateForInstrument(instrumentsConfig['GGAL']); fetchDataForInstrument(instrumentsConfig['GGAL']);">
+          <option value="A">Abril</option>
+          <option value="JU">Junio</option>
+          <option value="AG">Agosto</option>
+        </select>
+        <label for="sentimiento">Sentimiento:</label>
+        <select id="sentimiento" onchange="updateStrategyExamples(instrumentsConfig['GGAL'])">
+          <option value="alcista">Alcista</option>
+          <option value="bajista">Bajista</option>
+        </select>
+        <button class="btn" onclick="toggleStrategiesForInstrument(instrumentsConfig['GGAL'])">Mostrar Estrategias</button>
+      </div>
+
+      <!-- Estrategias para GGAL -->
+      <div class="strategies" id="strategies">
+        <h2>Estrategias Posibles</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Estrategia</th>
+              <th>Descripción</th>
+              <th>Acción Recomendada</th>
+              <th>Ejemplo</th>
+              <th>Probar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="strategy-coveredCall">
+              <td>Covered Call</td>
+              <td>Poseer la acción y vender una call a strike cercano</td>
+              <td>Mantener acción, vender call</td>
+              <td id="example-covered-call"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'coveredCall', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-protectivePut">
+              <td>Protective Put</td>
+              <td>Poseer la acción y comprar una put como seguro</td>
+              <td>Comprar put</td>
+              <td id="example-protective-put"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'protectivePut', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-bullCallSpread">
+              <td>Bull Call Spread</td>
+              <td>Compra de call a strike inferior y venta de call a strike superior</td>
+              <td>Long call y short call</td>
+              <td id="example-bull-call-spread"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'bullCallSpread', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-bearPutSpread">
+              <td>Bear Put Spread</td>
+              <td>Compra de put a strike superior y venta de put a strike inferior</td>
+              <td>Long put y short put</td>
+              <td id="example-bear-put-spread"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'bearPutSpread', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-longStraddle">
+              <td>Long Straddle</td>
+              <td>Compra simultánea de call y put en el mismo strike</td>
+              <td>Comprar call y put</td>
+              <td id="example-long-straddle"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'longStraddle', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-longStrangle">
+              <td>Long Strangle</td>
+              <td>Compra de call y put en strikes diferentes</td>
+              <td>Comprar call y put</td>
+              <td id="example-long-strangle"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'longStrangle', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-ironCondor">
+              <td>Iron Condor</td>
+              <td>Venta de un call spread y un put spread para rangos limitados</td>
+              <td>Venta de spreads</td>
+              <td id="example-iron-condor"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'ironCondor', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-butterflySpread">
+              <td>Butterfly Spread</td>
+              <td>Combinación de posiciones para aprovechar baja volatilidad</td>
+              <td>Posición neutral</td>
+              <td id="example-butterfly-spread"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'butterflySpread', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-calendarSpread">
+              <td>Calendar Spread</td>
+              <td>Explotar diferencia en vencimientos</td>
+              <td>Vender opción a corto plazo, comprar a largo plazo</td>
+              <td id="example-calendar-spread"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['GGAL'], 'calendarSpread', this.checked)" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tablas de Opciones GGAL -->
+      <main>
+        <h2>Opciones CALL (GFGC)</h2>
+        <table id="call-table">
+          <thead>
+            <tr>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 0, currentSortCall['GGAL'].ascending)" title="Símbolo">Symbol</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 1, currentSortCall['GGAL'].ascending)" title="Strike">Strike</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 2, currentSortCall['GGAL'].ascending)" title="Teórico">Teórico</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 3, currentSortCall['GGAL'].ascending)" title="Último">Último</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 4, currentSortCall['GGAL'].ascending)" title="Dif %">Dif %</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 5, currentSortCall['GGAL'].ascending)" title="Qty Bid">Qty Bid</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 6, currentSortCall['GGAL'].ascending)" title="Bid">Bid</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 7, currentSortCall['GGAL'].ascending)" title="Ask">Ask</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 8, currentSortCall['GGAL'].ascending)" title="Qty Ask">Qty Ask</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 9, currentSortCall['GGAL'].ascending)" title="Operaciones">Operaciones</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 10, currentSortCall['GGAL'].ascending)" title="% Cambio">% Cambio</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 11, currentSortCall['GGAL'].ascending)" title="Vol Implícita" style="border-left: 2px solid red;">Vol Implícita</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 12, currentSortCall['GGAL'].ascending)" title="Delta">Delta</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 13, currentSortCall['GGAL'].ascending)" title="Gamma">Gamma</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 14, currentSortCall['GGAL'].ascending)" title="Vega">Vega</th>
+              <th onclick="applySort('call-table' + instrumentsConfig['GGAL'].suffix, 15, currentSortCall['GGAL'].ascending)" title="Theta">Theta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Datos se generan dinámicamente -->
+          </tbody>
+        </table>
+
+        <h2>Opciones PUT (GFGV)</h2>
+        <table id="put-table">
+          <thead>
+            <tr>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 0, currentSortPut['GGAL'].ascending)" title="Símbolo">Symbol</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 1, currentSortPut['GGAL'].ascending)" title="Strike">Strike</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 2, currentSortPut['GGAL'].ascending)" title="Teórico">Teórico</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 3, currentSortPut['GGAL'].ascending)" title="Último">Último</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 4, currentSortPut['GGAL'].ascending)" title="Dif %">Dif %</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 5, currentSortPut['GGAL'].ascending)" title="Qty Bid">Qty Bid</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 6, currentSortPut['GGAL'].ascending)" title="Bid">Bid</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 7, currentSortPut['GGAL'].ascending)" title="Ask">Ask</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 8, currentSortPut['GGAL'].ascending)" title="Qty Ask">Qty Ask</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 9, currentSortPut['GGAL'].ascending)" title="Operaciones">Operaciones</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 10, currentSortPut['GGAL'].ascending)" title="% Cambio">% Cambio</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 11, currentSortPut['GGAL'].ascending)" title="Vol Implícita" style="border-left: 2px solid red;">Vol Implícita</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 12, currentSortPut['GGAL'].ascending)" title="Delta">Delta</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 13, currentSortPut['GGAL'].ascending)" title="Gamma">Gamma</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 14, currentSortPut['GGAL'].ascending)" title="Vega">Vega</th>
+              <th onclick="applySort('put-table' + instrumentsConfig['GGAL'].suffix, 15, currentSortPut['GGAL'].ascending)" title="Theta">Theta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Datos se generan dinámicamente -->
+          </tbody>
+        </table>
+      </main>
+
+      <!-- Registro de Operaciones y Gráfico para GGAL -->
+      <section id="trade-records">
+        <h2>Registro de Operaciones</h2>
+        <div class="trade-form">
+          <label for="trade-option-type">Tipo de Opción:</label>
+          <select id="trade-option-type" onchange="updateTradePremiumDefaultForInstrument(instrumentsConfig['GGAL'])">
+            <option value="call">Call</option>
+            <option value="put">Put</option>
+          </select>
+          <label for="trade-position">Posición:</label>
+          <select id="trade-position">
+            <option value="long">Compra (Long)</option>
+            <option value="short">Venta (Short)</option>
+          </select>
+          <label for="trade-strike">Strike:</label>
+          <select id="trade-strike" onchange="updateTradePremiumDefaultForInstrument(instrumentsConfig['GGAL'])">
+            <!-- Opciones se poblarán automáticamente -->
+          </select>
+          <label for="trade-premium">Prima:</label>
+          <input type="number" id="trade-premium" step="0.01" />
+          <label for="trade-quantity">Cantidad:</label>
+          <input type="number" id="trade-quantity" value="1" step="1" />
+          <button class="btn" onclick="addTradeForInstrument(instrumentsConfig['GGAL'])">Agregar Operación</button>
+        </div>
+        <div id="trade-list">
+          <!-- Lista de operaciones ingresadas -->
+        </div>
+        <canvas id="profitChart" style="max-width: 100%; height: 300px;"></canvas>
+      </section>
+
+      <div class="update-info">
+        <p id="last-update">Última actualización: -</p>
+        <p id="next-update">Próxima actualización en: 10 segundos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor para YPFD -->
+  <div id="ypfd-content" style="display:none;">
+    <!-- Inputs para YPFD -->
+    <section class="input-fields" id="input-fields-ypfd">
+      <div class="input-row">
+        <label for="precio-accion-ypfd">Precio Acción:</label>
+        <input type="number" id="precio-accion-ypfd" step="0.01" placeholder="Precio desde YPFD" onchange="fetchDataForInstrument(instrumentsConfig['YPFD']); updateStrategyExamples(instrumentsConfig['YPFD']);" />
+      </div>
+      <div class="input-row">
+        <label for="fecha-hoy-ypfd">Fecha Hoy:</label>
+        <input type="date" id="fecha-hoy-ypfd" onchange="fetchDataForInstrument(instrumentsConfig['YPFD']); updateStrategyExamples(instrumentsConfig['YPFD']);" />
+      </div>
+      <div class="input-row">
+        <label for="vto-opciones-ypfd">Vto opciones:</label>
+        <input type="date" id="vto-opciones-ypfd" value="2025-04-16" onchange="fetchDataForInstrument(instrumentsConfig['YPFD']);" />
+      </div>
+      <div class="input-row">
+        <label for="volatilidad-historica-ypfd">Vol. histórica (%):</label>
+        <input type="number" id="volatilidad-historica-ypfd" value="40" step="0.01" onchange="fetchDataForInstrument(instrumentsConfig['YPFD']);" />
+      </div>
+      <div class="input-row">
+        <label for="tasa-libre-riesgo-ypfd">Tasa libre (%):</label>
+        <input type="number" id="tasa-libre-riesgo-ypfd" value="25" step="0.01" onchange="fetchDataForInstrument(instrumentsConfig['YPFD']);" />
+      </div>
+      <div class="input-row">
+        <label for="plazo-dias-ypfd">Plazo (días):</label>
+        <input type="number" id="plazo-dias-ypfd" readonly />
+      </div>
+      <div class="input-row">
+        <label for="vol-calls-ypfd">Vol. Calls:</label>
+        <input type="text" id="vol-calls-ypfd" readonly />
+      </div>
+      <div class="input-row">
+        <label for="vol-puts-ypfd">Vol. Puts:</label>
+        <input type="text" id="vol-puts-ypfd" readonly />
+      </div>
+    </section>
+
+    <div id="main-content-ypfd">
+      <div class="last-update-visible" id="last-update-visible-ypfd">Última actualización: -</div>
+      <div class="controls">
+        <label for="vencimiento-filter-ypfd">Filtrar por Vencimiento:</label>
+        <select id="vencimiento-filter-ypfd" onchange="updateVtoDateForInstrument(instrumentsConfig['YPFD']); fetchDataForInstrument(instrumentsConfig['YPFD']);">
+          <option value="A">Abril</option>
+          <option value="JU">Junio</option>
+          <option value="AG">Agosto</option>
+        </select>
+        <label for="sentimiento-ypfd">Sentimiento:</label>
+        <select id="sentimiento-ypfd" onchange="updateStrategyExamples(instrumentsConfig['YPFD'])">
+          <option value="alcista">Alcista</option>
+          <option value="bajista">Bajista</option>
+        </select>
+        <button class="btn" onclick="toggleStrategiesForInstrument(instrumentsConfig['YPFD'])">Mostrar Estrategias</button>
+      </div>
+
+      <!-- Estrategias para YPFD -->
+      <div class="strategies" id="strategies-ypfd">
+        <h2>Estrategias Posibles</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Estrategia</th>
+              <th>Descripción</th>
+              <th>Acción Recomendada</th>
+              <th>Ejemplo</th>
+              <th>Probar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="strategy-coveredCall-ypfd">
+              <td>Covered Call</td>
+              <td>Poseer la acción y vender una call a strike cercano</td>
+              <td>Mantener acción, vender call</td>
+              <td id="example-covered-call-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'coveredCall', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-protectivePut-ypfd">
+              <td>Protective Put</td>
+              <td>Poseer la acción y comprar una put como seguro</td>
+              <td>Comprar put</td>
+              <td id="example-protective-put-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'protectivePut', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-bullCallSpread-ypfd">
+              <td>Bull Call Spread</td>
+              <td>Compra de call a strike inferior y venta de call a strike superior</td>
+              <td>Long call y short call</td>
+              <td id="example-bull-call-spread-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'bullCallSpread', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-bearPutSpread-ypfd">
+              <td>Bear Put Spread</td>
+              <td>Compra de put a strike superior y venta de put a strike inferior</td>
+              <td>Long put y short put</td>
+              <td id="example-bear-put-spread-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'bearPutSpread', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-longStraddle-ypfd">
+              <td>Long Straddle</td>
+              <td>Compra simultánea de call y put en el mismo strike</td>
+              <td>Comprar call y put</td>
+              <td id="example-long-straddle-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'longStraddle', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-longStrangle-ypfd">
+              <td>Long Strangle</td>
+              <td>Compra de call y put en strikes diferentes</td>
+              <td>Comprar call y put</td>
+              <td id="example-long-strangle-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'longStrangle', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-ironCondor-ypfd">
+              <td>Iron Condor</td>
+              <td>Venta de un call spread y un put spread para rangos limitados</td>
+              <td>Venta de spreads</td>
+              <td id="example-iron-condor-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'ironCondor', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-butterflySpread-ypfd">
+              <td>Butterfly Spread</td>
+              <td>Combinación de posiciones para aprovechar baja volatilidad</td>
+              <td>Posición neutral</td>
+              <td id="example-butterfly-spread-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'butterflySpread', this.checked)" /></td>
+            </tr>
+            <tr id="strategy-calendarSpread-ypfd">
+              <td>Calendar Spread</td>
+              <td>Explotar diferencia en vencimientos</td>
+              <td>Vender opción a corto plazo, comprar opción larga</td>
+              <td id="example-calendar-spread-ypfd"></td>
+              <td><input type="checkbox" onchange="toggleStrategyTrade(instrumentsConfig['YPFD'], 'calendarSpread', this.checked)" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tablas de Opciones YPFD -->
+      <main>
+        <h2>Opciones CALL (YPFC)</h2>
+        <table id="call-table-ypfd">
+          <thead>
+            <tr>
+              <th onclick="applySort('call-table-ypfd', 0, currentSortCall['YPFD'].ascending)" title="Símbolo">Symbol</th>
+              <th onclick="applySort('call-table-ypfd', 1, currentSortCall['YPFD'].ascending)" title="Strike">Strike</th>
+              <th onclick="applySort('call-table-ypfd', 2, currentSortCall['YPFD'].ascending)" title="Teórico">Teórico</th>
+              <th onclick="applySort('call-table-ypfd', 3, currentSortCall['YPFD'].ascending)" title="Último">Último</th>
+              <th onclick="applySort('call-table-ypfd', 4, currentSortCall['YPFD'].ascending)" title="Dif %">Dif %</th>
+              <th onclick="applySort('call-table-ypfd', 5, currentSortCall['YPFD'].ascending)" title="Qty Bid">Qty Bid</th>
+              <th onclick="applySort('call-table-ypfd', 6, currentSortCall['YPFD'].ascending)" title="Bid">Bid</th>
+              <th onclick="applySort('call-table-ypfd', 7, currentSortCall['YPFD'].ascending)" title="Ask">Ask</th>
+              <th onclick="applySort('call-table-ypfd', 8, currentSortCall['YPFD'].ascending)" title="Qty Ask">Qty Ask</th>
+              <th onclick="applySort('call-table-ypfd', 9, currentSortCall['YPFD'].ascending)" title="Operaciones">Operaciones</th>
+              <th onclick="applySort('call-table-ypfd', 10, currentSortCall['YPFD'].ascending)" title="% Cambio">% Cambio</th>
+              <th onclick="applySort('call-table-ypfd', 11, currentSortCall['YPFD'].ascending)" title="Vol Implícita" style="border-left: 2px solid red;">Vol Implícita</th>
+              <th onclick="applySort('call-table-ypfd', 12, currentSortCall['YPFD'].ascending)" title="Delta">Delta</th>
+              <th onclick="applySort('call-table-ypfd', 13, currentSortCall['YPFD'].ascending)" title="Gamma">Gamma</th>
+              <th onclick="applySort('call-table-ypfd', 14, currentSortCall['YPFD'].ascending)" title="Vega">Vega</th>
+              <th onclick="applySort('call-table-ypfd', 15, currentSortCall['YPFD'].ascending)" title="Theta">Theta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Datos se generan dinámicamente -->
+          </tbody>
+        </table>
+
+        <h2>Opciones PUT (YPFV)</h2>
+        <table id="put-table-ypfd">
+          <thead>
+            <tr>
+              <th onclick="applySort('put-table-ypfd', 0, currentSortPut['YPFD'].ascending)" title="Símbolo">Symbol</th>
+              <th onclick="applySort('put-table-ypfd', 1, currentSortPut['YPFD'].ascending)" title="Strike">Strike</th>
+              <th onclick="applySort('put-table-ypfd', 2, currentSortPut['YPFD'].ascending)" title="Teórico">Teórico</th>
+              <th onclick="applySort('put-table-ypfd', 3, currentSortPut['YPFD'].ascending)" title="Último">Último</th>
+              <th onclick="applySort('put-table-ypfd', 4, currentSortPut['YPFD'].ascending)" title="Dif %">Dif %</th>
+              <th onclick="applySort('put-table-ypfd', 5, currentSortPut['YPFD'].ascending)" title="Qty Bid">Qty Bid</th>
+              <th onclick="applySort('put-table-ypfd', 6, currentSortPut['YPFD'].ascending)" title="Bid">Bid</th>
+              <th onclick="applySort('put-table-ypfd', 7, currentSortPut['YPFD'].ascending)" title="Ask">Ask</th>
+              <th onclick="applySort('put-table-ypfd', 8, currentSortPut['YPFD'].ascending)" title="Qty Ask">Qty Ask</th>
+              <th onclick="applySort('put-table-ypfd', 9, currentSortPut['YPFD'].ascending)" title="Operaciones">Operaciones</th>
+              <th onclick="applySort('put-table-ypfd', 10, currentSortPut['YPFD'].ascending)" title="% Cambio">% Cambio</th>
+              <th onclick="applySort('put-table-ypfd', 11, currentSortPut['YPFD'].ascending)" title="Vol Implícita" style="border-left: 2px solid red;">Vol Implícita</th>
+              <th onclick="applySort('put-table-ypfd', 12, currentSortPut['YPFD'].ascending)" title="Delta">Delta</th>
+              <th onclick="applySort('put-table-ypfd', 13, currentSortPut['YPFD'].ascending)" title="Gamma">Gamma</th>
+              <th onclick="applySort('put-table-ypfd', 14, currentSortPut['YPFD'].ascending)" title="Vega">Vega</th>
+              <th onclick="applySort('put-table-ypfd', 15, currentSortPut['YPFD'].ascending)" title="Theta">Theta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Datos se generan dinámicamente -->
+          </tbody>
+        </table>
+      </main>
+
+      <!-- Registro de Operaciones y Gráfico para YPFD -->
+      <section id="trade-records-ypfd">
+        <h2>Registro de Operaciones</h2>
+        <div class="trade-form">
+          <label for="trade-option-type-ypfd">Tipo de Opción:</label>
+          <select id="trade-option-type-ypfd" onchange="updateTradePremiumDefaultForInstrument(instrumentsConfig['YPFD'])">
+            <option value="call">Call</option>
+            <option value="put">Put</option>
+          </select>
+          <label for="trade-position-ypfd">Posición:</label>
+          <select id="trade-position-ypfd">
+            <option value="long">Compra (Long)</option>
+            <option value="short">Venta (Short)</option>
+          </select>
+          <label for="trade-strike-ypfd">Strike:</label>
+          <select id="trade-strike-ypfd" onchange="updateTradePremiumDefaultForInstrument(instrumentsConfig['YPFD'])">
+            <!-- Opciones se poblarán automáticamente -->
+          </select>
+          <label for="trade-premium-ypfd">Prima:</label>
+          <input type="number" id="trade-premium-ypfd" step="0.01" />
+          <label for="trade-quantity-ypfd">Cantidad:</label>
+          <input type="number" id="trade-quantity-ypfd" value="1" step="1" />
+          <button class="btn" onclick="addTradeForInstrument(instrumentsConfig['YPFD'])">Agregar Operación</button>
+        </div>
+        <div id="trade-list-ypfd">
+          <!-- Lista de operaciones ingresadas -->
+        </div>
+        <canvas id="profitChart-ypfd" style="max-width: 100%; height: 300px;"></canvas>
+      </section>
+
+      <div class="update-info">
+        <p id="last-update-ypfd">Última actualización: -</p>
+        <p id="next-update-ypfd">Próxima actualización en: 10 segundos</p>
+      </div>
     </div>
   </div>
 
